@@ -1,0 +1,35 @@
+# Stage 07 — clinical openEHR ingestion evidence (REAL workspace run)
+# Mock openEHR CDR (AQL REST) deployed as Databricks App lead-opt-mock-ehr;
+# custom AQL LakeflowConnect connector -> Lakeflow pipeline lead-opt-ingest-clinical-bronze
+# -> lead_opt_demo_clinical.bronze.ehr_compositions_raw (distinct catalog from preclinical)
+# All patient data synthetic (no names/DOBs/real identifiers). Generated: 2026-09-14T16:02:49Z
+
+## Row count / cardinality
+rows | patients | drug_codes | obs_types
+-----+----------+------------+----------
+13   | 8        | 5          | 2        
+
+(1 rows)
+
+## Sample rows (synthetic values only)
+patient_ref       | drug_code | observation_type | value                | effective_ts            
+------------------+-----------+------------------+----------------------+-------------------------
+synthetic-pt-0001 | DRG-0012  | adverse_reaction | cardiac_arrhythmia   | 2026-06-04T11:00:00.000Z
+synthetic-pt-0001 | DRG-0012  | lab_result       | QTc 478 ms           | 2026-06-04T12:00:00.000Z
+synthetic-pt-0002 | DRG-0004  | lab_result       | ALT 34 U/L           | 2026-06-06T13:00:00.000Z
+synthetic-pt-0002 | DRG-0004  | lab_result       | AST 29 U/L           | 2026-06-06T14:00:00.000Z
+synthetic-pt-0003 | DRG-0008  | lab_result       | creatinine 0.9 mg/dL | 2026-06-07T12:00:00.000Z
+synthetic-pt-0003 | DRG-0001  | lab_result       | glucose 88 mg/dL     | 2026-06-08T11:00:00.000Z
+synthetic-pt-0004 | DRG-0012  | adverse_reaction | qt_prolongation      | 2026-06-10T14:00:00.000Z
+synthetic-pt-0004 | DRG-0012  | lab_result       | QTc 465 ms           | 2026-06-10T15:00:00.000Z
+
+(8 rows)
+
+## Planted adverse-reaction signal (feeds stage-10 clinical correlation)
+drug_code | observation_type | value              | n
+----------+------------------+--------------------+--
+DRG-0012  | adverse_reaction | cardiac_arrhythmia | 1
+DRG-0012  | adverse_reaction | qt_prolongation    | 1
+DRG-0777  | adverse_reaction | mild_rash          | 1
+
+(3 rows)

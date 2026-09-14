@@ -29,3 +29,17 @@ resources:
         mock_lims.host: https://lead-opt-mock-lims-7405610110498224.4.azure.databricksapps.com
         mock_lims.api_key: lims-demo-key
         mock_lims.token_url: https://adb-7405610110498224.4.azuredatabricks.net/oidc/v1/token
+
+    ingest_clinical_bronze:
+      name: lead-opt-ingest-clinical-bronze
+      serverless: true
+      catalog: lead_opt_demo_clinical
+      schema: bronze
+      channel: PREVIEW
+      libraries:
+        - file:
+            path: pipelines/ingest_ehr_compositions.py
+      configuration:
+        mock_ehr.connector_path: "${workspace.file_path}/connectors/mock_ehr"
+        mock_ehr.host: https://lead-opt-mock-ehr-7405610110498224.4.azure.databricksapps.com
+        mock_ehr.api_key: ehr-demo-key
