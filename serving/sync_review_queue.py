@@ -15,12 +15,17 @@ from dbsql import query_rows  # noqa: E402
 import lakebase  # noqa: E402
 
 SOURCE_QUERY = """
-    SELECT reading_id, compound_id, assay_name, result_value, result_unit,
-           concern_direction, threshold, threshold_unit, margin,
-           compound_prior_n, compound_prior_mean, reason,
-           cast(evaluated_ts AS STRING) AS flagged_ts
-    FROM lead_opt_demo.silver.assay_flags
-    WHERE is_flagged = true
+    SELECT af.reading_id, af.compound_id, af.assay_name, af.result_value, af.result_unit,
+           af.concern_direction, af.threshold, af.threshold_unit, af.margin,
+           af.compound_prior_n, af.compound_prior_mean, af.reason,
+           cast(af.evaluated_ts AS STRING) AS flagged_ts,
+           afc.correlation_state AS clinical_correlation_state,
+           afc.drug_code AS clinical_drug_code,
+           afc.signal_detail AS clinical_signal_detail
+    FROM lead_opt_demo.silver.assay_flags af
+    LEFT JOIN lead_opt_demo.silver.assay_flags_clinical afc
+      ON afc.compound_id = af.compound_id
+    WHERE af.is_flagged = true
 """
 
 

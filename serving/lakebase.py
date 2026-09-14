@@ -72,7 +72,8 @@ def get_review_queue(status: str = "open", limit: int | None = None) -> list[dic
         SELECT reading_id, compound_id, assay_name, result_value, result_unit,
                concern_direction, threshold, threshold_unit, margin,
                compound_prior_n, compound_prior_mean, reason, status,
-               flagged_ts, synced_ts, resolved_by, resolved_ts, resolution_note
+               flagged_ts, synced_ts, resolved_by, resolved_ts, resolution_note,
+               clinical_correlation_state, clinical_drug_code, clinical_signal_detail
         FROM review_queue
         {where}
         ORDER BY margin ASC NULLS LAST, compound_id
@@ -141,6 +142,9 @@ def get_queue_rollup() -> list[dict]:
         SELECT compound_id,
                count(*) AS open_flags,
                max(abs(margin)) AS worst_breach,
+               max(clinical_correlation_state) AS clinical_correlation_state,
+               max(clinical_drug_code) AS clinical_drug_code,
+               max(clinical_signal_detail) AS clinical_signal_detail,
                json_agg(json_build_object(
                    'reading_id', reading_id, 'assay_name', assay_name,
                    'result_value', result_value, 'result_unit', result_unit,
@@ -214,7 +218,8 @@ def upsert_flags(rows: list[dict]) -> int:
         return 0
     cols = ["reading_id", "compound_id", "assay_name", "result_value", "result_unit",
             "concern_direction", "threshold", "threshold_unit", "margin",
-            "compound_prior_n", "compound_prior_mean", "reason", "flagged_ts"]
+            "compound_prior_n", "compound_prior_mean", "reason", "flagged_ts",
+            "clinical_correlation_state", "clinical_drug_code", "clinical_signal_detail"]
     values = [[r.get(c) for c in cols] for r in rows]
     sql = f"""
         INSERT INTO review_queue ({", ".join(cols)}, synced_ts)
@@ -232,6 +237,9 @@ def upsert_flags(rows: list[dict]) -> int:
             compound_prior_mean = EXCLUDED.compound_prior_mean,
             reason = EXCLUDED.reason,
             flagged_ts = EXCLUDED.flagged_ts,
+            clinical_correlation_state = EXCLUDED.clinical_correlation_state,
+            clinical_drug_code = EXCLUDED.clinical_drug_code,
+            clinical_signal_detail = EXCLUDED.clinical_signal_detail,
             synced_ts = now()
     """
     template = "(" + ", ".join(["%s"] * len(cols)) + ", now())"

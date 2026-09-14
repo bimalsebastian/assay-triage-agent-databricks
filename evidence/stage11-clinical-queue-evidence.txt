@@ -1,0 +1,20 @@
+# Stage 11 — extended Lakebase review queue with clinical correlation (REAL workspace)
+# review_queue gains 3-state clinical_correlation (no_mapping / checked_no_correlation / correlated)
+# populated by the updated sync from assay_flags_clinical. Generated: 2026-09-14T16:13:06Z
+
+## Open queue rows by clinical correlation state (three-state, not boolean)
+ clinical_correlation_state | count 
+----------------------------+-------
+ checked_no_correlation     |     5
+ correlated                 |     2
+ no_mapping                 |     4
+(3 rows)
+
+## One example open row in EACH state (compound, assay, correlation, drug, detail)
+ clinical_correlation_state | compound_id | assay_name | clinical_drug_code |                            signal                            
+----------------------------+-------------+------------+--------------------+--------------------------------------------------------------
+ checked_no_correlation     | CMPD00004   | LOGD_7_4   | DRG-0004           | mapped to DRG-0004 — checked clinical data, no adverse_react
+ correlated                 | CMPD00006   | hERG_IC50  | DRG-0777           | mapped to DRG-0777 — adverse_reaction signal: mild_rash
+ no_mapping                 | CMPD00003   | LOGD_7_4   |                    | no crosswalk mapping (or unresolved identifier) for this com
+(3 rows)
+
