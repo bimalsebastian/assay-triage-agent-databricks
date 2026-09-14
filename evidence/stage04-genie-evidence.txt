@@ -1,0 +1,130 @@
+# Stage 04 — Genie space execution evidence (REAL workspace, run AS the service principal)
+# Space: Lead-Opt Assay Triage (01f1b03319ec17daa40d884a21f77386), scoped to lead_opt_demo.silver.{assay_results,compound_registry,tox_reference,assay_flags}
+# Queried as SP 775366c2-... (CAN_RUN on space, SELECT on silver only) — NOT personal credentials
+# Generated: 2026-09-14T12:00:13Z
+
+==================================================================
+Q: Which compounds are currently flagged?
+status: COMPLETED
+generated SQL:
+  SELECT `compound_id`, `assay_name`, `result_value`, `threshold`, `reason` FROM `lead_opt_demo`.`silver`.`assay_flags` WHERE `is_flagged` = true AND `compound_id` IS NOT NULL AND `assay_name` IS NOT NULL ORDER BY `margin` ASC
+result rows (up to 6): [['CMPD00014', 'KINETIC_SOL', '4.51', '10.0', 'FLAGGED: KINETIC_SOL reading 4.51 uM breaches synthetic low-concern threshold 10.0 uM (margin -5.49). Compound prior mean 7.763 over 2 historical readings.'], ['CMPD00012', 'hERG_IC50', '0.259', '1.0', 'FLAGGED: hERG_IC50 reading 0.259 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.741). Compound prior mean 0.264 over 2 historical readings.'], ['CMPD00012', 'hERG_IC50', '0.269', '1.0', 'FLAGGED: hERG_IC50 reading 0.269 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.731). Compound prior mean 0.264 over 2 historical readings.'], ['CMPD00012', 'CYP3A4_IC50', '0.421', '1.0', 'FLAGGED: CYP3A4_IC50 reading 0.421 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.579). Compound prior mean 1.7405 over 2 historical readings.'], ['CMPD00004', 'CYP3A4_IC50', '0.709', '1.0', 'FLAGGED: CYP3A4_IC50 reading 0.709 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.291). Compound prior mean 1.171 over 2 historical readings.'], ['CMPD00004', 'hERG_IC50', '0.717', '1.0', 'FLAGGED: hERG_IC50 reading 0.717 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.283). Compound prior mean 1.181 over 2 historical readings.']]
+answer: There are **9 compounds** currently flagged in the results shown. Examples include:
+- **CMPD00014** — flagged for **KINETIC_SOL**
+- **CMPD00012** — flagged for **hERG_IC50** and **CYP3A4_IC50**
+- **CMPD00004** — flagged for **CYP3A4_IC50**, **hERG_IC50**, and **LOGD_7_4**
+- **CMPD00024** — flagged for **hERG_IC50**
+- **CMPD00008** — flagged for **hERG_IC50** and **LOGD_7_4**
+
+Across the 14 flagged readings shown, **hERG_IC50** appears most often, and **CMPD00004** has the widest spread of flagged assays.
+
+==================================================================
+Q: What were the last three readings for CMPD00012?
+status: COMPLETED
+generated SQL:
+  SELECT `assay_name`, `result_value`, `result_unit`, `acquired_ts` FROM `lead_opt_demo`.`silver`.`assay_results` WHERE `compound_id` = 'CMPD00012' ORDER BY `acquired_ts` DESC LIMIT 3
+result rows (up to 6): [['hERG_IC50', '0.269', 'uM', '2026-09-13T07:12:34.309Z'], ['CYP3A4_IC50', '3.06', 'uM', '2026-09-13T05:49:26.695Z'], ['KINETIC_SOL', '93.398', 'uM', '2026-09-12T16:18:16.736Z']]
+answer: The last three readings for **CMPD00012** were **hERG_IC50: 0.269 uM** on **2026-09-13 07:12:34 UTC**, **CYP3A4_IC50: 3.06 uM** on **2026-09-13 05:49:26 UTC**, and **KINETIC_SOL: 93.398 uM** on **2026-09-12 16:18:16 UTC**. Across these 3 most recent readings, the newest two were collected on **2026-09-13**, with **KINETIC_SOL** showing the highest reported value.
+
+==================================================================
+Q: How does CMPD00012's hERG_IC50 reading compare to the reference threshold?
+status: COMPLETED
+generated SQL:
+  SELECT `r`.`compound_id`, `r`.`assay_name`, `r`.`result_value`, `t`.`concern_threshold`, `t`.`concern_direction` FROM `lead_opt_demo`.`silver`.`assay_results` `r` JOIN `lead_opt_demo`.`silver`.`tox_reference` `t` ON `t`.`assay_name` = `r`.`assay_name` WHERE `r`.`compound_id` = 'CMPD00012' AND `r`.`assay_name` = 'hERG_IC50'
+result rows (up to 6): [['CMPD00012', 'hERG_IC50', '0.259', '1.0', 'low'], ['CMPD00012', 'hERG_IC50', '0.269', '1.0', 'low']]
+answer: CMPD00012 has **two** hERG_IC50 readings, **0.259** and **0.269**, versus a reference threshold of **1.0** where **lower values are a concern**. Both readings are **below** the threshold, and they are very similar to each other.
+
+==================================================================
+Q: Which assay has the most flagged readings?
+status: COMPLETED
+generated SQL:
+  WITH flagged_counts AS (
+    SELECT
+      assay_flags.assay_name,
+      COUNT(*) AS flagged_readings
+    FROM lead_opt_demo.silver.assay_flags
+    WHERE assay_flags.is_flagged = true
+      AND assay_flags.assay_name IS NOT NULL
+    GROUP BY assay_flags.assay_name
+  ), ranked AS (
+    SELECT
+      flagged_counts.assay_name,
+      flagged_counts.flagged_readings,
+      RANK() OVER (ORDER BY flagged_counts.flagged_readings DESC) AS rnk
+    FROM flagged_counts
+  )
+  SELECT
+    ranked.assay_name,
+    ranked.flagged_readings
+  FROM ranked
+  WHERE ranked.rnk = 1
+  ORDER BY ranked.assay_name ASC
+result rows (up to 6): [['hERG_IC50', '7']]
+answer: The assay with the most flagged readings is **hERG_IC50**, with **7** flagged readings. Based on the returned result, **hERG_IC50** is the top assay for flagged readings in this dataset.
+
+==================================================================
+Q: How many compounds are in the registry?
+status: COMPLETED
+generated SQL:
+  SELECT COUNT(*) AS `compound_count` FROM `lead_opt_demo`.`silver`.`compound_registry`
+result rows (up to 6): [['24']]
+answer: There are **24** compounds in the registry.
+
+==================================================================
+Q: What are the concern thresholds for each assay?
+status: COMPLETED
+generated SQL:
+  SELECT `assay_name`, `concern_direction`, `concern_threshold`, `unit`, `rationale`, `is_synthetic`
+  FROM `lead_opt_demo`.`silver`.`tox_reference`
+  WHERE `assay_name` IS NOT NULL
+  ORDER BY `assay_name` ASC
+result rows (up to 6): [['CACO2_PAPP', 'low', '1.0', '1e-6cm/s', 'Low apparent permeability indicates poor absorption', 'true'], ['CYP3A4_IC50', 'low', '1.0', 'uM', 'Low IC50 indicates strong CYP3A4 inhibition and DDI risk', 'true'], ['KINETIC_SOL', 'low', '10.0', 'uM', 'Low kinetic solubility indicates formulation and exposure risk', 'true'], ['LOGD_7_4', 'high', '5.0', '', 'High logD indicates excessive lipophilicity', 'true'], ['hERG_IC50', 'low', '1.0', 'uM', 'IC50 below threshold indicates cardiac hERG channel liability', 'true']]
+answer: There are **5 assays** in the reference data, and all shown thresholds are marked as **synthetic**. The concern thresholds for each assay are:
+- **CACO2_PAPP**: **1.0 1e-6cm/s** (**low** values are a concern)
+- **CYP3A4_IC50**: **1.0 uM** (**low** values are a concern)
+- **KINETIC_SOL**: **10.0 uM** (**low** values are a concern)
+- **LOGD_7_4**: **5.0** (**high** values are a concern)
+- **hERG_IC50**: **1.0 uM** (**low** values are a concern)
+
+Most assays use a **low-threshold** concern rule, with **LOGD_7_4** as the only assay where **high** values are the concern.
+
+==================================================================
+Q: List compounds with a flagged hERG_IC50 reading below 1 uM.
+status: COMPLETED
+generated SQL:
+  SELECT `compound_id`, `assay_name`, `result_value`, `result_unit`, `threshold`, `threshold_unit`, `reason`
+  FROM `lead_opt_demo`.`silver`.`assay_flags`
+  WHERE `is_flagged` = true
+    AND `assay_name` = 'hERG_IC50'
+    AND `result_value` IS NOT NULL
+    AND `result_value` < 1
+    AND `compound_id` IS NOT NULL
+  ORDER BY `result_value` ASC, `compound_id` ASC
+result rows (up to 6): [['CMPD00012', 'hERG_IC50', '0.259', 'uM', '1.0', 'uM', 'FLAGGED: hERG_IC50 reading 0.259 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.741). Compound prior mean 0.264 over 2 historical readings.'], ['CMPD00012', 'hERG_IC50', '0.269', 'uM', '1.0', 'uM', 'FLAGGED: hERG_IC50 reading 0.269 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.731). Compound prior mean 0.264 over 2 historical readings.'], ['CMPD00004', 'hERG_IC50', '0.717', 'uM', '1.0', 'uM', 'FLAGGED: hERG_IC50 reading 0.717 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.283). Compound prior mean 1.181 over 2 historical readings.'], ['CMPD00024', 'hERG_IC50', '0.795', 'uM', '1.0', 'uM', 'FLAGGED: hERG_IC50 reading 0.795 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.205). Compound prior mean 0.8915 over 2 historical readings.'], ['CMPD00008', 'hERG_IC50', '0.844', 'uM', '1.0', 'uM', 'FLAGGED: hERG_IC50 reading 0.844 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.156). Compound prior mean 1.1455 over 2 historical readings.'], ['CMPD00006', 'hERG_IC50', '0.846', 'uM', '1.0', 'uM', 'FLAGGED: hERG_IC50 reading 0.846 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.154). Compound prior mean 8.8585 over 2 historical readings.']]
+answer: There are **7 flagged hERG_IC50 readings below 1 uM** in the results, spanning **5 compounds**. Examples include:
+- **CMPD00012** — **0.259 uM**
+- **CMPD00012** — **0.269 uM**
+- **CMPD00004** — **0.717 uM**
+- **CMPD00024** — **0.795 uM**
+- **CMPD00008** — **0.844 uM**
+The lowest flagged reading is **0.259 uM** for **CMPD00012**, and **CMPD00012** and **CMPD00024** each appear twice in these flagged results.
+
+==================================================================
+Q: Show the average hERG_IC50 result per compound.
+status: COMPLETED
+generated SQL:
+  SELECT `compound_id`, AVG(`result_value`) AS `avg_hERG_IC50_result`, COUNT(*) AS `n_readings`
+  FROM `lead_opt_demo`.`silver`.`assay_results`
+  WHERE `assay_name` = 'hERG_IC50'
+    AND `compound_id` IS NOT NULL
+    AND `result_value` IS NOT NULL
+  GROUP BY `compound_id`
+  ORDER BY `compound_id`
+result rows (up to 6): [['CMPD00001', '21.844', '2'], ['CMPD00002', '37.81', '2'], ['CMPD00003', '23.2955', '2'], ['CMPD00004', '1.181', '2'], ['CMPD00005', '30.618000000000002', '2'], ['CMPD00006', '8.8585', '2']]
+answer: Average **hERG_IC50** results are available for **24 compounds**, and each compound is based on **2 readings**. Examples include:
+- **CMPD00001:** **21.844**
+- **CMPD00002:** **37.81**
+- **CMPD00003:** **23.2955**
+- **CMPD00004:** **1.181**
+- **CMPD00005:** **30.618**
+The averages range from **0.264** for **CMPD00012** to **37.81** for **CMPD00002**, showing a wide spread across compounds.
