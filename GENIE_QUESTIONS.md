@@ -15,3 +15,14 @@ compound_registry, tox_reference, assay_flags}`.
 | 6 | What are the concern thresholds for each assay? | `tox_reference` |
 | 7 | List compounds with a flagged hERG_IC50 reading below 1 uM. | `assay_flags` WHERE `assay_name='hERG_IC50'` AND `is_flagged` |
 | 8 | Show the average hERG_IC50 result per compound. | `assay_results` WHERE `assay_name='hERG_IC50'`, GROUP BY `compound_id` |
+
+## Clinical correlation (stage 12) — separate scoped room "Lead-Opt Clinical Correlation"
+
+Aggregate-only room over `lead_opt_demo.silver.clinical_correlation_summary`
+(no patient-level data, no clinical catalog access).
+
+| # | Question | Should resolve to |
+|---|----------|-------------------|
+| C1 | Which flagged compounds have a clinical correlation? | `clinical_correlation_summary` WHERE `correlation_state='correlated'` |
+| C2 | How many compounds fall in each correlation state? | `clinical_correlation_summary` GROUP BY `correlation_state` |
+| C3 | Which compounds have no clinical mapping available? | `clinical_correlation_summary` WHERE `correlation_state='no_mapping'` |

@@ -1,0 +1,45 @@
+# Stage 12 — scoped clinical Genie room evidence (REAL workspace, asked as the app SP)
+# Separate room 'Lead-Opt Clinical Correlation' (01f1b0576897173aa44f717957b922d0), scoped to ONLY
+# lead_opt_demo.silver.clinical_correlation_summary (aggregate, no patient data).
+# Generated: 2026-09-14T16:16:13Z
+
+## DESIGN DECISION: a separate, tightly-scoped clinical room (not folding clinical
+## into the preclinical room). A single unscoped room over both is the anti-pattern.
+
+## Out-of-scope verification (app SP = the room's runtime identity)
+  clinical_observations (raw clinical catalog) -> FAILED, INSUFFICIENT_PERMISSIONS (no USE CATALOG)
+  clinical_correlation_summary (scoped view)   -> SUCCEEDED, 8 rows
+
+==================================================================
+Q: Which flagged compounds have a clinical correlation?
+status: COMPLETED
+generated SQL:
+  SELECT `compound_id`, `signal_summary` FROM `lead_opt_demo`.`silver`.`clinical_correlation_summary` WHERE `correlation_state` = 'correlated'
+result rows (up to 6): [['CMPD00012', 'adverse_reaction signal present in clinical data'], ['CMPD00007', 'adverse_reaction signal present in clinical data'], ['CMPD00006', 'adverse_reaction signal present in clinical data']]
+answer: **3 flagged compounds** show a clinical correlation, and all are marked with an **adverse reaction signal present in clinical data**.
+
+- **CMPD00012**
+- **CMPD00007**
+- **CMPD00006**
+
+Across all 3 returned compounds, the clinical correlation finding is the same: **adverse reaction signal present in clinical data**.
+==================================================================
+Q: How many compounds fall in each correlation state?
+status: COMPLETED
+generated SQL:
+  SELECT `correlation_state`, COUNT(*) AS `compound_count`
+  FROM `lead_opt_demo`.`silver`.`clinical_correlation_summary`
+  WHERE `correlation_state` IS NOT NULL
+  GROUP BY `correlation_state`
+result rows (up to 6): [['no_mapping', '3'], ['correlated', '3'], ['checked_no_correlation', '2']]
+answer: There are **3** compounds in **no_mapping**, **3** in **correlated**, and **2** in **checked_no_correlation**. The largest counts are tied between **no_mapping** and **correlated**, each with one more compound than **checked_no_correlation**.
+==================================================================
+Q: Which compounds have no clinical mapping available?
+status: COMPLETED
+generated SQL:
+  SELECT `compound_id`, `signal_summary`
+  FROM `lead_opt_demo`.`silver`.`clinical_correlation_summary`
+  WHERE `correlation_state` = 'no_mapping'
+  ORDER BY `compound_id`
+result rows (up to 6): [['CMPD00003', 'no clinical mapping available for this compound'], ['CMPD00014', 'no clinical mapping available for this compound'], ['CMPD00024', 'no clinical mapping available for this compound']]
+answer: There are **3 compounds** with **no clinical mapping available**: **CMPD00003**, **CMPD00014**, and **CMPD00024**. All 3 returned compounds have the same status message: **"no clinical mapping available for this compound"**.
