@@ -1,0 +1,62 @@
+# Stage 01 — Unity Catalog governance / silver execution evidence (REAL workspace)
+# Workspace: adb-7405610110498224.4.azuredatabricks.net | catalog lead_opt_demo, schema silver
+# Transform: transforms/01_silver.sql (run via SQL warehouse); reads bronze.assay_results_raw
+# Generated: 2026-09-14T11:29:01Z
+
+## Row counts across silver tables + quarantine
+tbl                      | rows
+-------------------------+-----
+assay_results            | 240 
+assay_results_quarantine | 0   
+compound_registry        | 24  
+tox_reference            | 5   
+
+(4 rows)
+
+## DQ reconciliation: bronze = silver.assay_results + quarantine
+bronze_rows | silver_valid | quarantined
+------------+--------------+------------
+240         | 240          | 0          
+
+(1 rows)
+
+## silver.assay_results — sample
+sample_id              | compound_id | assay_name  | result_value | result_unit | acquired_ts              | qc_flag
+-----------------------+-------------+-------------+--------------+-------------+--------------------------+--------
+LO-CMPD00001-P2-C02-R2 | CMPD00001   | CACO2_PAPP  | 23.067       | 1e-6cm/s    | 2026-09-12T04:09:15.558Z | PASS   
+LO-CMPD00001-P2-D01-R1 | CMPD00001   | LOGD_7_4    | 2.249        |             | 2026-09-11T19:29:30.542Z | PASS   
+LO-CMPD00001-P2-D08-R2 | CMPD00001   | CYP3A4_IC50 | 11.538       | uM          | 2026-09-10T21:01:32.355Z | PASS   
+LO-CMPD00001-P2-E05-R1 | CMPD00001   | hERG_IC50   | 29.559       | uM          | 2026-09-12T23:59:42.352Z | PASS   
+LO-CMPD00001-P2-F01-R1 | CMPD00001   | CACO2_PAPP  | 40.146       | 1e-6cm/s    | 2026-09-10T13:03:29.890Z | PASS   
+
+(5 rows)
+
+## silver.compound_registry — sample (synthetic structure placeholder)
+compound_id | structure_id_placeholder            | structure_is_synthetic_placeholder | n_readings | n_assays
+------------+-------------------------------------+------------------------------------+------------+---------
+CMPD00001   | SYNTH-INCHIKEY-2C0F4A6E536703DA9971 | true                               | 10         | 5       
+CMPD00002   | SYNTH-INCHIKEY-57C67FC94FA2AEB6FBB8 | true                               | 10         | 5       
+CMPD00003   | SYNTH-INCHIKEY-37C25E7A0B3CEF17F7C4 | true                               | 10         | 5       
+CMPD00004   | SYNTH-INCHIKEY-AD89AB8F334CF8009FD9 | true                               | 10         | 5       
+CMPD00005   | SYNTH-INCHIKEY-9C082752CF85483A35EB | true                               | 10         | 5       
+
+(5 rows)
+
+## silver.tox_reference — full (SYNTHETIC thresholds, stage 03 input)
+assay_name  | concern_direction | concern_threshold | unit     | is_synthetic | rationale                                                     
+------------+-------------------+-------------------+----------+--------------+---------------------------------------------------------------
+CACO2_PAPP  | low               | 1.0               | 1e-6cm/s | true         | Low apparent permeability indicates poor absorption           
+CYP3A4_IC50 | low               | 1.0               | uM       | true         | Low IC50 indicates strong CYP3A4 inhibition and DDI risk      
+KINETIC_SOL | low               | 10.0              | uM       | true         | Low kinetic solubility indicates formulation and exposure risk
+LOGD_7_4    | high              | 5.0               |          | true         | High logD indicates excessive lipophilicity                   
+hERG_IC50   | low               | 1.0               | uM       | true         | IC50 below threshold indicates cardiac hERG channel liability 
+
+(5 rows)
+
+## Least-privilege grants on silver (SP has SELECT only, no MODIFY)
+Principal                            | ActionType | ObjectType | ObjectKey           
+-------------------------------------+------------+------------+---------------------
+775366c2-e2bc-435c-af28-0cd5ca2386a0 | SELECT     | SCHEMA     | lead_opt_demo.silver
+775366c2-e2bc-435c-af28-0cd5ca2386a0 | USE SCHEMA | SCHEMA     | lead_opt_demo.silver
+
+(2 rows)

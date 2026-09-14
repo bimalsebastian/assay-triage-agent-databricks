@@ -46,12 +46,7 @@ def run(sql: str) -> dict:
     return resp
 
 
-def main():
-    if len(sys.argv) < 2:
-        print(__doc__)
-        sys.exit(1)
-    sql = sys.stdin.read() if sys.argv[1] == "-" else sys.argv[1]
-    resp = run(sql)
+def _print_result(resp):
     state = resp["status"]["state"]
     if state != "SUCCEEDED":
         print(f"STATE: {state}")
@@ -68,13 +63,38 @@ def main():
     for r in rows:
         for i, v in enumerate(r):
             widths[i] = max(widths[i], len(str(v)))
+
     def fmt(vals):
         return " | ".join(str(v).ljust(widths[i]) for i, v in enumerate(vals))
+
     print(fmt(cols))
     print("-+-".join("-" * w for w in widths))
     for r in rows:
         print(fmt(["NULL" if v is None else v for v in r]))
     print(f"\n({len(rows)} rows)")
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        sys.exit(1)
+    # --file runs a semicolon-separated .sql script, statement by statement.
+    if sys.argv[1] == "--file":
+        with open(sys.argv[2]) as fh:
+            text = fh.read()
+        # Drop full-line comments first so a leading "-- ..." line doesn't hide
+        # the statement, and split on ";" (keep ";" out of string literals).
+        code = "\n".join(
+            ln for ln in text.splitlines() if not ln.lstrip().startswith("--")
+        )
+        statements = [s.strip() for s in code.split(";") if s.strip()]
+        for i, stmt in enumerate(statements, 1):
+            first_line = stmt.splitlines()[0][:80]
+            print(f"\n>>> [{i}/{len(statements)}] {first_line}")
+            _print_result(run(stmt))
+        return
+    sql = sys.stdin.read() if sys.argv[1] == "-" else sys.argv[1]
+    _print_result(run(sql))
 
 
 if __name__ == "__main__":
