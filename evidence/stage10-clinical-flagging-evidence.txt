@@ -1,0 +1,37 @@
+# Stage 10 — extended flagging with clinical correlation evidence (REAL workspace)
+# Function lead_opt_demo.silver.check_clinical_correlation + companion table assay_flags_clinical
+# Generated: 2026-09-14T16:10:40Z
+
+## assay_flags_clinical — all flagged compounds, three distinct states (not a boolean)
+compound_id | correlation_state      | drug_code | crosswalk_confidence | n_adverse_obs | signal_detail                                                                    
+------------+------------------------+-----------+----------------------+---------------+----------------------------------------------------------------------------------
+CMPD00004   | checked_no_correlation | DRG-0004  | 1.0                  | 0             | mapped to DRG-0004 — checked clinical data, no adverse_reaction found            
+CMPD00008   | checked_no_correlation | DRG-0008  | 1.0                  | 0             | mapped to DRG-0008 — checked clinical data, no adverse_reaction found            
+CMPD00006   | correlated             | DRG-0777  | 0.5                  | 1             | mapped to DRG-0777 — adverse_reaction signal: mild_rash                          
+CMPD00007   | correlated             | DRG-0777  | 0.5                  | 1             | mapped to DRG-0777 — adverse_reaction signal: mild_rash                          
+CMPD00012   | correlated             | DRG-0012  | 1.0                  | 2             | mapped to DRG-0012 — adverse_reaction signal: qt_prolongation, cardiac_arrhythmia
+CMPD00003   | no_mapping             | NULL      | NULL                 | 0             | no crosswalk mapping (or unresolved identifier) for this compound                
+CMPD00014   | no_mapping             | NULL      | 0.0                  | 0             | no crosswalk mapping (or unresolved identifier) for this compound                
+CMPD00024   | no_mapping             | NULL      | NULL                 | 0             | no crosswalk mapping (or unresolved identifier) for this compound                
+
+(8 rows)
+
+## State distribution
+correlation_state      | compounds
+-----------------------+----------
+checked_no_correlation | 2        
+correlated             | 3        
+no_mapping             | 3        
+
+(3 rows)
+
+## Unit tests — three distinguishable outcomes (literal-arg function calls)
+
+>>> [1/1] WITH results AS (
+test_name                        | expected               | actual                 | passed
+---------------------------------+------------------------+------------------------+-------
+CMPD00004_checked_no_correlation | checked_no_correlation | checked_no_correlation | true  
+CMPD00012_correlated             | correlated             | correlated             | true  
+CMPD00024_no_mapping             | no_mapping             | no_mapping             | true  
+
+(3 rows)
