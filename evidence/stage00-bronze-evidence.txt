@@ -1,0 +1,71 @@
+# Stage 00 — bronze ingestion execution evidence (REAL workspace run)
+# Workspace: adb-7405610110498224.4.azuredatabricks.net
+# Catalog.schema.table: lead_opt_demo.bronze.assay_results_raw
+# Pipeline: lead-opt-ingest-bronze (4d1050a0-1fcf-4bc9-855b-1fc56aee5433)
+# Update d4dfc52c-93c1-4e78-9106-931252148510 -> COMPLETED
+# Path: mock LIMS Databricks App -> custom LakeflowConnect connector -> Lakeflow pipeline -> bronze Delta
+# Generated: 2026-09-14T11:16:19Z
+
+## Row count / cardinality
+row_count | compounds | assays | earliest                 | latest                  
+----------+-----------+--------+--------------------------+-------------------------
+240       | 24        | 5      | 2026-09-10T08:30:16.327Z | 2026-09-13T07:25:28.631Z
+
+(1 rows)
+
+## Table schema (unmarshalled from the awkward vendor payload)
+col_name       | data_type | comment
+---------------+-----------+--------
+sample_id      | string    | NULL   
+compound_id    | string    | NULL   
+plate          | string    | NULL   
+well           | string    | NULL   
+replicate      | int       | NULL   
+assay_name     | string    | NULL   
+result_value   | double    | NULL   
+result_unit    | string    | NULL   
+acquired_ts    | timestamp | NULL   
+assay_protocol | string    | NULL   
+operator_id    | string    | NULL   
+batch_guid     | string    | NULL   
+qc_flag        | string    | NULL   
+
+(13 rows)
+
+## Sample rows
+sample_id              | compound_id | plate | well | replicate | assay_name  | result_value | result_unit | acquired_ts              | qc_flag
+-----------------------+-------------+-------+------+-----------+-------------+--------------+-------------+--------------------------+--------
+LO-CMPD00001-P2-C02-R2 | CMPD00001   | P2    | C02  | 2         | CACO2_PAPP  | 23.067       | 1e-6cm/s    | 2026-09-12T04:09:15.558Z | PASS   
+LO-CMPD00001-P2-D01-R1 | CMPD00001   | P2    | D01  | 1         | LOGD_7_4    | 2.249        |             | 2026-09-11T19:29:30.542Z | PASS   
+LO-CMPD00001-P2-D08-R2 | CMPD00001   | P2    | D08  | 2         | CYP3A4_IC50 | 11.538       | uM          | 2026-09-10T21:01:32.355Z | PASS   
+LO-CMPD00001-P2-E05-R1 | CMPD00001   | P2    | E05  | 1         | hERG_IC50   | 29.559       | uM          | 2026-09-12T23:59:42.352Z | PASS   
+LO-CMPD00001-P2-F01-R1 | CMPD00001   | P2    | F01  | 1         | CACO2_PAPP  | 40.146       | 1e-6cm/s    | 2026-09-10T13:03:29.890Z | PASS   
+LO-CMPD00001-P2-F02-R2 | CMPD00001   | P2    | F02  | 2         | KINETIC_SOL | 146.688      | uM          | 2026-09-10T21:45:06.496Z | REVIEW 
+LO-CMPD00001-P2-F10-R1 | CMPD00001   | P2    | F10  | 1         | CYP3A4_IC50 | 32.696       | uM          | 2026-09-10T16:23:23.739Z | PASS   
+LO-CMPD00001-P2-G07-R1 | CMPD00001   | P2    | G07  | 1         | KINETIC_SOL | 26.79        | uM          | 2026-09-10T16:10:24.899Z | PASS   
+
+(8 rows)
+
+## Readings per assay
+assay_name  | n  | min_val | max_val
+------------+----+---------+--------
+CACO2_PAPP  | 48 | 1.012   | 44.981 
+CYP3A4_IC50 | 48 | 0.421   | 46.463 
+KINETIC_SOL | 48 | 4.51    | 199.556
+LOGD_7_4    | 48 | 0.621   | 5.37   
+hERG_IC50   | 48 | 0.259   | 38.726 
+
+(5 rows)
+
+## Tox signal present for stage 03: hERG_IC50 readings below 1.0 uM
+compound_id | assay_name | result_value | result_unit
+------------+------------+--------------+------------
+CMPD00012   | hERG_IC50  | 0.259        | uM         
+CMPD00012   | hERG_IC50  | 0.269        | uM         
+CMPD00004   | hERG_IC50  | 0.717        | uM         
+CMPD00024   | hERG_IC50  | 0.795        | uM         
+CMPD00008   | hERG_IC50  | 0.844        | uM         
+CMPD00006   | hERG_IC50  | 0.846        | uM         
+CMPD00024   | hERG_IC50  | 0.988        | uM         
+
+(7 rows)

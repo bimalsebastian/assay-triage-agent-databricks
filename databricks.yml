@@ -1,0 +1,31 @@
+# Databricks Asset Bundle — pharma lead-optimization triage build.
+# Deploys the stage-00 Lakeflow ingestion pipeline (and later stages) to the
+# dedicated demo workspace. Reproducible: `databricks bundle deploy -t demo`.
+bundle:
+  name: lead-opt
+
+targets:
+  demo:
+    default: true
+    workspace:
+      host: https://adb-7405610110498224.4.azuredatabricks.net
+
+resources:
+  pipelines:
+    ingest_bronze:
+      name: lead-opt-ingest-bronze
+      serverless: true
+      catalog: lead_opt_demo
+      schema: bronze
+      channel: PREVIEW
+      libraries:
+        - file:
+            path: pipelines/ingest_assay_results.py
+      configuration:
+        # Plain (non-secret) config only. Auth bearer + SP creds are read at
+        # runtime with dbutils.secrets.get (scope lead_opt) — secret references
+        # in configuration come back redacted through spark.conf.get.
+        mock_lims.connector_path: "${workspace.file_path}/connectors/mock_lims"
+        mock_lims.host: https://lead-opt-mock-lims-7405610110498224.4.azure.databricksapps.com
+        mock_lims.api_key: lims-demo-key
+        mock_lims.token_url: https://adb-7405610110498224.4.azuredatabricks.net/oidc/v1/token
