@@ -78,6 +78,57 @@ workspace.
   text, not just working code. A stage isn't done until you've
   committed that evidence.
 
+## Clinical/openEHR extension (prompts 07-13)
+
+This extends the base build with clinical data, integrated via the
+openEHR standard. Read this section in full before starting prompt
+07 — it changes the governance bar for a meaningful chunk of the
+system, not just adds new tables.
+
+**Why this is different from the LIMS side:** openEHR data is
+hierarchical (Reference Model + archetypes + templates, not flat
+rows) and queried live via AQL against a Clinical Data Repository
+(CDR) — there is no batch file drop equivalent. And even as fully
+synthetic data, it's modeled on data that would be PHI-shaped in the
+real world, so it gets governed accordingly — never treat the
+clinical catalog with the same access posture as the preclinical one.
+
+**New components, each mapping to one prompt:**
+
+- **Mock EHR (EHRbase)** — an openEHR-compliant CDR, self-hosted via
+  Docker, loaded with synthetic patient compositions. This is a live
+  system to query, not a file to parse.
+- **AQL-based Lakeflow connector** — queries the mock EHR via AQL
+  over its REST API and lands the result in a clinical bronze table.
+- **Clinical Unity Catalog governance** — a separate catalog (or
+  clearly separated schema with materially different grants) from
+  the preclinical one, with a de-identification/masking story even
+  though the underlying data is synthetic.
+- **Compound-drug crosswalk** — the join layer mapping a preclinical
+  compound_id to whatever identifier the clinical side uses. Treat
+  this mapping as a known hard problem in real translational
+  medicine, not a trivial lookup — design the synthetic data so the
+  mapping is clean, and say so explicitly in any write-up.
+- **Extended GenAI flagging** — the existing flagging function grows
+  a second dimension: does this compound also have a real-world
+  clinical signal (e.g. an adverse-event pattern) correlated with the
+  preclinical flag.
+- **Extended Lakebase queue** — a `clinical_correlation` field on the
+  existing review queue, populated from the extended flagging output.
+- **Extended Genie room** — clinical data exposed through a
+  deliberately scoped, likely aggregate-only or masked view. Never
+  expose patient-level detail through the same open natural-language
+  surface used for preclinical data — that's a distinct design
+  decision, not a copy-paste of the existing Genie space config.
+- **Extended Databricks App** — surfaces the correlation indicator
+  next to existing queue rows.
+
+**Non-negotiable for this extension specifically:** the clinical
+catalog's grants must be visibly, deliberately tighter than the
+preclinical catalog's — if a stage's grants end up identical to the
+preclinical side's, that's a sign the governance step was skipped,
+not that the two datasets turned out equally sensitive.
+
 ## Tech stack
 
 Databricks CLI + Python for the mock LIMS service and the custom
@@ -85,7 +136,9 @@ Lakeflow connector, Databricks Asset Bundles where useful for
 reproducible deployment, Unity Catalog + Delta Lake, a UC function
 (SQL/Python) for the flagging logic, Lakebase (Postgres-compatible)
 for the review queue, a Genie space over the silver tables, and a
-Databricks App for the dashboard.
+Databricks App for the dashboard. For the clinical extension: Docker
+for the mock EHRbase instance, and an AQL-capable HTTP client (plain
+`requests` is fine) for the connector.
 
 ## What "done" looks like for each stage
 

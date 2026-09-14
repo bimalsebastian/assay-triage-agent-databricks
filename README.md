@@ -73,6 +73,27 @@ let it work, review what it built, then **commit the code and the
 real execution output together** before moving to the next prompt —
 per `CLAUDE.md`, a stage isn't done until that evidence is committed.
 
+## Clinical/openEHR extension (prompts 07-13)
+
+Adds clinical data via a mocked openEHR system, converging with the
+base build at the crosswalk stage. Run order:
+
+```
+prompts/07-mock-ehr-aql-connector-prompt.md      <- independent, can start anytime
+prompts/08-clinical-uc-governance-prompt.md      <- depends on 07
+prompts/09-compound-drug-crosswalk-prompt.md     <- depends on 01 AND 08 (convergence point)
+prompts/10-extended-flagging-prompt.md           <- depends on 02 AND 09
+prompts/11-extended-lakebase-queue-prompt.md     <- depends on 03 AND 10
+prompts/12-scoped-genie-clinical-prompt.md       <- depends on 04 AND 08
+prompts/13-app-correlation-indicator-prompt.md   <- depends on 05, 11, 12 (and 06 if built)
+```
+
+07 can be built in parallel with the base build's 00-06 — it's a
+separate track until prompt 09. Everything from 09 onward is
+sequential. Read `CLAUDE.md`'s "Clinical/openEHR extension" section
+before starting 07 — the governance bar changes here, not just the
+table names.
+
 ## What happened to the earlier Android/Omnigent-flavored package
 
 Superseded. That package was scoped for a different mobility
@@ -83,7 +104,7 @@ Lakeflow raw-ingestion stage (prompt 00) that was missing before.
 
 ## Live build KPIs (stage 06)
 
-The review-queue KPI panel now shows a **real** number computed from logged
+The review-queue KPI panel shows a **real** number computed from logged
 resolutions in Lakebase `resolved_items`, not a modeled estimate:
 
 - **Median time from flag-created to resolved: 3.91 h** (from 3 real
@@ -94,9 +115,6 @@ This replaces the modeled KPI estimate in the deck — cite the actual
 reviews are logged. See `evidence/stage06-enhancements-evidence.txt`.
 
 ### What's next (deferred from stage 06, future-work slide)
-
-Intentionally out of scope for the integrated-journey demo, good candidates
-for a future-work slide:
 
 - Notifications / alerting on new high-severity flags.
 - An SLA / aging view over the open queue.
