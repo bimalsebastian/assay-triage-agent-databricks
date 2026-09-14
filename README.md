@@ -80,3 +80,25 @@ engagement and was being carried forward out of habit, not because
 it belongs in this submission. This package is the one to build from
 — it drops Android and the sync-API design entirely, and adds the
 Lakeflow raw-ingestion stage (prompt 00) that was missing before.
+
+## Live build KPIs (stage 06)
+
+The review-queue KPI panel now shows a **real** number computed from logged
+resolutions in Lakebase `resolved_items`, not a modeled estimate:
+
+- **Median time from flag-created to resolved: 3.91 h** (from 3 real
+  resolutions logged through the app on 2026-09-14).
+
+This replaces the modeled KPI estimate in the deck — cite the actual
+`resolved_items`-derived figure, which grows more representative as more
+reviews are logged. See `evidence/stage06-enhancements-evidence.txt`.
+
+### What's next (deferred from stage 06, future-work slide)
+
+Intentionally out of scope for the integrated-journey demo, good candidates
+for a future-work slide:
+
+- Notifications / alerting on new high-severity flags.
+- An SLA / aging view over the open queue.
+- An explicit escalation-to-toxicologist action (beyond the
+  `escalated_for_confirmatory_assay` resolution reason).

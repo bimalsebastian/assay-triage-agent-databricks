@@ -12,3 +12,5 @@ env:
     value: "ep-hidden-fire-e9y4qh66.database.eastus.azuredatabricks.net"
   - name: PGDATABASE
     value: "lead_opt"
+  - name: WAREHOUSE_ID
+    value: "13d08bfefc608fe6"

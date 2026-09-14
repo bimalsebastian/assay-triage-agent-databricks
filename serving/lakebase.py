@@ -93,18 +93,101 @@ def get_queue_summary() -> dict:
         return {row[0]: row[1] for row in cur.fetchall()}
 
 
-def resolve_item(reading_id: str, resolved_by: str, note: str | None = None) -> bool:
-    """Mark a queued item resolved. Stage 05's app triggers this on reviewer action."""
+RESOLUTION_REASONS = (
+    "false_positive", "confirmed_concern", "escalated_for_confirmatory_assay",
+)
+
+
+def resolve_item(reading_id: str, resolved_by: str, resolution_reason: str,
+                 note: str | None = None) -> bool:
+    """Resolve a queued item with a required reason.
+
+    Records the resolution in resolved_items (which powers the flag->resolve KPI
+    and survives after the row leaves the active queue) and marks the review_queue
+    row resolved. The reason must be one of RESOLUTION_REASONS.
+    """
+    if resolution_reason not in RESOLUTION_REASONS:
+        raise ValueError(f"resolution_reason must be one of {RESOLUTION_REASONS}")
     with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            """INSERT INTO resolved_items (
+                   reading_id, compound_id, assay_name, result_value, result_unit,
+                   threshold, margin, reason, resolution_reason, resolved_by,
+                   resolved_ts, flagged_ts, resolution_note)
+               SELECT reading_id, compound_id, assay_name, result_value, result_unit,
+                      threshold, margin, reason, %s, %s, now(), flagged_ts, %s
+                 FROM review_queue
+                WHERE reading_id = %s AND status = 'open'
+               ON CONFLICT (reading_id) DO NOTHING""",
+            (resolution_reason, resolved_by, note, reading_id),
+        )
+        inserted = cur.rowcount
         cur.execute(
             """UPDATE review_queue
                  SET status = 'resolved', resolved_by = %s, resolved_ts = now(),
-                     resolution_note = %s
+                     resolution_reason = %s, resolution_note = %s
                WHERE reading_id = %s AND status = 'open'""",
-            (resolved_by, note, reading_id),
+            (resolved_by, resolution_reason, note, reading_id),
         )
         conn.commit()
-        return cur.rowcount > 0
+        return inserted > 0 or cur.rowcount > 0
+
+
+def get_queue_rollup() -> list[dict]:
+    """Compound-level rollup of the open queue: one row per compound with its
+    open flag count and worst breach, plus its flagged readings nested (sorted
+    widest-breach first). Compounds ordered by flag count, then worst breach."""
+    sql = """
+        SELECT compound_id,
+               count(*) AS open_flags,
+               max(abs(margin)) AS worst_breach,
+               json_agg(json_build_object(
+                   'reading_id', reading_id, 'assay_name', assay_name,
+                   'result_value', result_value, 'result_unit', result_unit,
+                   'concern_direction', concern_direction, 'threshold', threshold,
+                   'threshold_unit', threshold_unit, 'margin', margin,
+                   'compound_prior_n', compound_prior_n,
+                   'compound_prior_mean', compound_prior_mean, 'reason', reason
+                 ) ORDER BY abs(margin) DESC) AS readings
+        FROM review_queue
+        WHERE status = 'open'
+        GROUP BY compound_id
+        ORDER BY open_flags DESC, worst_breach DESC
+    """
+    with get_connection() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute(sql)
+        return [dict(r) for r in cur.fetchall()]
+
+
+def get_flags_by_assay(days: int = 30) -> list[dict]:
+    """Open-flag counts per assay type in the last N days — surfaces a
+    miscalibrated threshold that would otherwise hide in the flat list."""
+    with get_connection() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute(
+            """SELECT assay_name, count(*) AS open_flags
+                 FROM review_queue
+                WHERE status = 'open' AND flagged_ts >= now() - make_interval(days => %s)
+                GROUP BY assay_name
+                ORDER BY open_flags DESC""",
+            (days,),
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def get_kpi() -> dict:
+    """Median (and count) time from flag-created to resolved, from real
+    resolved_items rows. Not modeled."""
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            """SELECT count(*),
+                      percentile_cont(0.5) WITHIN GROUP (
+                          ORDER BY EXTRACT(EPOCH FROM (resolved_ts - flagged_ts)))
+                 FROM resolved_items
+                WHERE flagged_ts IS NOT NULL"""
+        )
+        n, median_s = cur.fetchone()
+        return {"resolved_count": n,
+                "median_seconds": float(median_s) if median_s is not None else None}
 
 
 def reopen_item(reading_id: str) -> bool:

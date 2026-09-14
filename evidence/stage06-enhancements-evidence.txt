@@ -1,0 +1,47 @@
+# Stage 06 — review queue enhancements evidence (REAL deployed app + Lakebase)
+# App: lead-opt-review (https://lead-opt-review-7405610110498224.4.azure.databricksapps.com)
+# Generated: 2026-09-14T15:34:29Z
+
+## Compound rollup (/api/queue/rollup) — one row per compound, severity-sorted, readings nested
+summary: {'open': 11, 'resolved': 3}
+  CMPD00004: 3 open flag(s), worst breach 0.348
+      - LOGD_7_4     reading 5.348 vs thr 5  breach 0.348
+      - CYP3A4_IC50  reading 0.709 vs thr 1  breach 0.291
+      - hERG_IC50    reading 0.717 vs thr 1  breach 0.283
+  CMPD00008: 2 open flag(s), worst breach 0.370
+      - LOGD_7_4     reading 5.37 vs thr 5  breach 0.370
+      - hERG_IC50    reading 0.844 vs thr 1  breach 0.156
+  CMPD00024: 2 open flag(s), worst breach 0.205
+      - hERG_IC50    reading 0.795 vs thr 1  breach 0.205
+      - hERG_IC50    reading 0.988 vs thr 1  breach 0.012
+  CMPD00014: 1 open flag(s), worst breach 5.490
+      - KINETIC_SOL  reading 4.51 vs thr 10  breach 5.490
+  CMPD00003: 1 open flag(s), worst breach 0.332
+      - LOGD_7_4     reading 5.332 vs thr 5  breach 0.332
+  CMPD00007: 1 open flag(s), worst breach 0.204
+      - CYP3A4_IC50  reading 0.796 vs thr 1  breach 0.204
+  CMPD00006: 1 open flag(s), worst breach 0.154
+      - hERG_IC50    reading 0.846 vs thr 1  breach 0.154
+
+## Flags-by-assay panel (/api/flags-by-assay) — surfaces the dominant flag source
+last 30 days:
+  hERG_IC50    5
+  LOGD_7_4     3
+  CYP3A4_IC50  2
+  KINETIC_SOL  1
+
+## KPI panel (/api/kpi) — median flag->resolve from REAL resolved_items rows (not modeled)
+  {'resolved_count': 3, 'median_seconds': 14087.081535, 'median_hours': 3.91}
+
+## Resolution records — direct psql on resolved_items (reason enum, resolver, timestamps)
+       reading_id       | compound_id | assay_name  |        resolution_reason         |          resolved_by           |          resolved_ts          |          flagged_ts           | hours_to_resolve 
+------------------------+-------------+-------------+----------------------------------+--------------------------------+-------------------------------+-------------------------------+------------------
+ LO-CMPD00012-P1-C03-R1 | CMPD00012   | hERG_IC50   | confirmed_concern                | bimal.sebastian@databricks.com | 2026-09-14 15:33:55.321655+00 | 2026-09-14 11:39:09.160978+00 |             3.91
+ LO-CMPD00012-P1-H06-R2 | CMPD00012   | hERG_IC50   | false_positive                   | bimal.sebastian@databricks.com | 2026-09-14 15:33:56.242513+00 | 2026-09-14 11:39:09.160978+00 |             3.91
+ LO-CMPD00012-P1-F04-R1 | CMPD00012   | CYP3A4_IC50 | escalated_for_confirmatory_assay | bimal.sebastian@databricks.com | 2026-09-14 15:33:57.677867+00 | 2026-09-14 11:39:09.160978+00 |             3.91
+(3 rows)
+
+
+## Compound history drill-in (/api/history) — real historical readings, CMPD00004 hERG_IC50
+  2026-09-12 03:24:29.055  0.717 uM  qc=REVIEW
+  2026-09-12 04:41:30.296  1.645 uM  qc=PASS
