@@ -1,0 +1,47 @@
+# Stage 05 — Databricks App execution evidence (REAL deployed app, end of chain)
+# App: lead-opt-review  URL: https://lead-opt-review-7405610110498224.4.azure.databricksapps.com
+# Auth: workspace SSO (X-Forwarded-Email); app reaches Lakebase + Genie as its own service principal (eed3b02d-...)
+# Generated: 2026-09-14T15:12:48Z
+
+## SSO identity forwarded to the app (/api/whoami)
+{"user":"bimal.sebastian@databricks.com"}
+
+## Rendered review-queue content (/api/queue) — the actual rows the dashboard shows
+summary: {'open': 14}
+compound    assay        reading   thr    reason
+CMPD00014   KINETIC_SOL  4.51      10.0   FLAGGED: KINETIC_SOL reading 4.51 uM breaches synthetic low-concern th
+CMPD00012   hERG_IC50    0.259     1.0    FLAGGED: hERG_IC50 reading 0.259 uM breaches synthetic low-concern thr
+CMPD00012   hERG_IC50    0.269     1.0    FLAGGED: hERG_IC50 reading 0.269 uM breaches synthetic low-concern thr
+CMPD00012   CYP3A4_IC50  0.421     1.0    FLAGGED: CYP3A4_IC50 reading 0.421 uM breaches synthetic low-concern t
+CMPD00004   CYP3A4_IC50  0.709     1.0    FLAGGED: CYP3A4_IC50 reading 0.709 uM breaches synthetic low-concern t
+CMPD00004   hERG_IC50    0.717     1.0    FLAGGED: hERG_IC50 reading 0.717 uM breaches synthetic low-concern thr
+CMPD00024   hERG_IC50    0.795     1.0    FLAGGED: hERG_IC50 reading 0.795 uM breaches synthetic low-concern thr
+CMPD00007   CYP3A4_IC50  0.796     1.0    FLAGGED: CYP3A4_IC50 reading 0.796 uM breaches synthetic low-concern t
+CMPD00008   hERG_IC50    0.844     1.0    FLAGGED: hERG_IC50 reading 0.844 uM breaches synthetic low-concern thr
+CMPD00006   hERG_IC50    0.846     1.0    FLAGGED: hERG_IC50 reading 0.846 uM breaches synthetic low-concern thr
+CMPD00024   hERG_IC50    0.988     1.0    FLAGGED: hERG_IC50 reading 0.988 uM breaches synthetic low-concern thr
+CMPD00003   LOGD_7_4     5.332     5.0    FLAGGED: LOGD_7_4 reading 5.332  breaches synthetic high-concern thres
+CMPD00004   LOGD_7_4     5.348     5.0    FLAGGED: LOGD_7_4 reading 5.348  breaches synthetic high-concern thres
+CMPD00008   LOGD_7_4     5.37      5.0    FLAGGED: LOGD_7_4 reading 5.37  breaches synthetic high-concern thresh
+
+## Real Genie Q&A from within the app (/api/ask)
+Q: Which compounds are currently flagged?
+status: COMPLETED
+answer: There are **9 compounds** currently flagged in the results shown: **CMPD00014, CMPD00012, CMPD00004, CMPD00024, CMPD00007, CMPD00008, CMPD00006,** and **CMPD00003**. Examples include:
+- **CMPD00014** — **KINETIC_SOL** at **4.51** vs threshold **10.0**
+- **CMPD00012** — **hERG_IC50** at **0.259** vs threshold **1.0**
+- **CMPD00004** — **CYP3A4_IC50** at **0.709** vs threshold **1.0**
+- **CMPD00003** — **LOGD_7_4** at **5.332** vs threshold **5.0**
+- **CMPD00008** — **LOGD_7_4** at **5.37** vs threshold **5.0**
+
+Across the 14 flagged readings shown, **hERG_IC50** appears most often, and **CMPD00012, CMPD00004, CMPD00024,** and **CMPD00008** each have multiple flagged readings.
+
+Q: How does CMPD00012's hERG_IC50 reading compare to the reference threshold?
+status: COMPLETED
+answer: CMPD00012 has **two** hERG_IC50 readings, **0.259** and **0.269**, and the reference threshold is **1.0** with concern direction **low**, meaning values below **1.0** are concerning. Both readings are **below** the threshold, so both compare as concerning; they are also very close to each other, ranging from **0.259 to 0.269**.
+
+## Resolve action from the app (/api/resolve) — item leaves the open queue
+resolving reading_id: LO-CMPD00014-P3-B04-R1 (resolver = SSO user)
+{"ok":true}
+open count after resolve:
+{'open': 13, 'resolved': 1}

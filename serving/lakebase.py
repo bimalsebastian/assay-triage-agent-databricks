@@ -50,8 +50,20 @@ def _conn_params() -> dict:
             "user": user, "password": password, "sslmode": "require"}
 
 
+_CRED_PROVIDER = None
+
+
+def set_credential_provider(fn):
+    """Override how connection params are obtained (dict with host/port/dbname/
+    user/password/sslmode). The long-running app uses this to supply a freshly
+    minted OAuth token per connection (Lakebase tokens expire ~1h)."""
+    global _CRED_PROVIDER
+    _CRED_PROVIDER = fn
+
+
 def get_connection():
-    return psycopg2.connect(**_conn_params())
+    params = _CRED_PROVIDER() if _CRED_PROVIDER else _conn_params()
+    return psycopg2.connect(**params)
 
 
 def get_review_queue(status: str = "open", limit: int | None = None) -> list[dict]:
