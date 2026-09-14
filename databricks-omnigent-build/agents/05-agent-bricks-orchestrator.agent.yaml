@@ -1,0 +1,29 @@
+name: agent-bricks-orchestrator
+
+instructions: ../prompts/05-agent-bricks-orchestrator-prompt.md
+
+executor:
+  harness: claude-sdk
+  model: databricks-claude-sonnet-4-6
+  auth:
+    type: databricks
+    profile: oss   # replace with your workspace's configured Omnigent profile
+
+os_env: true
+
+policies:
+  budget:
+    type: function
+    handler: omnigent.policies.builtins.cost.cost_budget
+    on: [request]
+    factory_params:
+      max_cost_usd: 8.00
+      ask_thresholds_usd: [5.00]
+
+  # See ../policies/promotion-approval-gate.md before enabling this —
+  # the enforcement-point name and handler signature need to be
+  # verified against your installed Omnigent version first.
+  # gate_promotion:
+  #   type: function
+  #   handler: policies.gate_promotion.gate_promotion
+  #   on: [tool_call]
