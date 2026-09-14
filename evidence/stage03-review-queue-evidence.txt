@@ -1,0 +1,59 @@
+# Stage 03 — Lakebase operational serving evidence (REAL workspace)
+# Lakebase project: projects/lead-opt-triage (Postgres 17, autoscaling)
+# Endpoint host: ep-hidden-fire-e9y4qh66.database.eastus.azuredatabricks.net
+# Database.table: lead_opt.public.review_queue  (queried directly below via psql)
+# Source: lead_opt_demo.silver.assay_flags WHERE is_flagged = true
+# Generated: 2026-09-14T11:50:09Z
+
+## Direct psql: row count by status
+ status | count 
+--------+-------
+ open   |    14
+(1 row)
+
+## Direct psql: current open review queue (worst margin first)
+ compound_id | assay_name  | result_value | threshold | margin | status 
+-------------+-------------+--------------+-----------+--------+--------
+ CMPD00014   | KINETIC_SOL |         4.51 |        10 |  -5.49 | open
+ CMPD00012   | hERG_IC50   |        0.259 |         1 | -0.741 | open
+ CMPD00012   | hERG_IC50   |        0.269 |         1 | -0.731 | open
+ CMPD00012   | CYP3A4_IC50 |        0.421 |         1 | -0.579 | open
+ CMPD00004   | CYP3A4_IC50 |        0.709 |         1 | -0.291 | open
+ CMPD00004   | hERG_IC50   |        0.717 |         1 | -0.283 | open
+ CMPD00024   | hERG_IC50   |        0.795 |         1 | -0.205 | open
+ CMPD00007   | CYP3A4_IC50 |        0.796 |         1 | -0.204 | open
+ CMPD00008   | hERG_IC50   |        0.844 |         1 | -0.156 | open
+ CMPD00006   | hERG_IC50   |        0.846 |         1 | -0.154 | open
+ CMPD00024   | hERG_IC50   |        0.988 |         1 | -0.012 | open
+ CMPD00003   | LOGD_7_4    |        5.332 |         5 |  0.332 | open
+ CMPD00004   | LOGD_7_4    |        5.348 |         5 |  0.348 | open
+ CMPD00008   | LOGD_7_4    |         5.37 |         5 |   0.37 | open
+(14 rows)
+
+## Direct psql: one full row incl. reasoning (no second Delta round-trip needed)
+-[ RECORD 1 ]-------+------------------------------------------------------------------------------------------------------------------------------------------------------------
+reading_id          | LO-CMPD00014-P3-B04-R1
+compound_id         | CMPD00014
+assay_name          | KINETIC_SOL
+result_value        | 4.51
+threshold           | 10
+margin              | -5.49
+compound_prior_n    | 2
+compound_prior_mean | 7.763
+reason              | FLAGGED: KINETIC_SOL reading 4.51 uM breaches synthetic low-concern threshold 10.0 uM (margin -5.49). Compound prior mean 7.763 over 2 historical readings.
+status              | open
+flagged_ts          | 2026-09-14 11:39:09.160978+00
+
+
+## Sync job run (serving/sync_review_queue.py)
+sync complete:
+  source_open_flags: 14
+  upserted: 14
+  cleared_stale: 0
+  queue_by_status: {'open': 14}
+
+## Access layer (serving/lakebase.py) — resolve stub round-trip
+resolve_item( LO-CMPD00014-P3-B04-R1 ) -> True
+summary after resolve: {'open': 13, 'resolved': 1}
+reopen_item -> True
+summary after reopen: {'open': 14}

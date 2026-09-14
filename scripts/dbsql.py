@@ -46,6 +46,17 @@ def run(sql: str) -> dict:
     return resp
 
 
+def query_rows(sql: str) -> list[dict]:
+    """Run a query and return rows as a list of dicts (for reuse by other code)."""
+    resp = run(sql)
+    if resp["status"]["state"] != "SUCCEEDED":
+        raise RuntimeError(json.dumps(resp.get("status", {})))
+    manifest = resp.get("manifest", {})
+    cols = [c["name"] for c in manifest.get("schema", {}).get("columns", [])]
+    data = resp.get("result", {}).get("data_array", [])
+    return [dict(zip(cols, row)) for row in data]
+
+
 def _print_result(resp):
     state = resp["status"]["state"]
     if state != "SUCCEEDED":
