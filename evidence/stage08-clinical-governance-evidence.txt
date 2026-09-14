@@ -1,0 +1,57 @@
+# Stage 08 — clinical governance / silver execution evidence (REAL workspace)
+# catalog lead_opt_demo_clinical.silver; grants deliberately tighter than preclinical
+# Generated: 2026-09-14T16:05:47Z
+
+## Row counts
+tbl                   | rows
+----------------------+-----
+clinical_observations | 13  
+patient_ref_registry  | 8   
+
+(2 rows)
+
+## clinical_observations sample — de-identified (patient_pseudonym, no raw ref)
+patient_pseudonym                                                | drug_code | observation_type | value                | effective_ts            
+-----------------------------------------------------------------+-----------+------------------+----------------------+-------------------------
+76c0a223f1c21a506f3a133e12e5e42b40c15bd09df591a164b9189d7f1f7e4d | DRG-0012  | adverse_reaction | cardiac_arrhythmia   | 2026-06-04T11:00:00.000Z
+76c0a223f1c21a506f3a133e12e5e42b40c15bd09df591a164b9189d7f1f7e4d | DRG-0012  | lab_result       | QTc 478 ms           | 2026-06-04T12:00:00.000Z
+90b0f42fbb486bd4830c7555d974858748a7b96629fe874ecfe0d7f0e5a2225a | DRG-0004  | lab_result       | ALT 34 U/L           | 2026-06-06T13:00:00.000Z
+90b0f42fbb486bd4830c7555d974858748a7b96629fe874ecfe0d7f0e5a2225a | DRG-0004  | lab_result       | AST 29 U/L           | 2026-06-06T14:00:00.000Z
+b78615384014263b6e203869cb2a5b82d10073f5113cf96e61540b5f786e4765 | DRG-0008  | lab_result       | creatinine 0.9 mg/dL | 2026-06-07T12:00:00.000Z
+
+(5 rows)
+
+## patient_ref_registry — no demographics, pseudonyms only
+patient_pseudonym                                                | n_observations | n_drug_codes
+-----------------------------------------------------------------+----------------+-------------
+90b0f42fbb486bd4830c7555d974858748a7b96629fe874ecfe0d7f0e5a2225a | 2              | 1           
+e680f745eb2c29b7be290d5bba90c0e490b1c9ed56410e8c89a3459d5b12db29 | 2              | 1           
+b78615384014263b6e203869cb2a5b82d10073f5113cf96e61540b5f786e4765 | 2              | 2           
+2f9661addc88ad70524aecc291eddf8200adc912747cc2b84fd4aaa2132240d2 | 2              | 1           
+
+(4 rows)
+
+## GRANTS — CLINICAL catalog (tighter): table-level SELECT to ingest SP only
+### SHOW GRANTS ON SCHEMA lead_opt_demo_clinical.silver (note: NO schema-level SELECT)
+Principal                            | ActionType | ObjectType | ObjectKey                    
+-------------------------------------+------------+------------+------------------------------
+775366c2-e2bc-435c-af28-0cd5ca2386a0 | USE SCHEMA | SCHEMA     | lead_opt_demo_clinical.silver
+
+(1 rows)
+### SHOW GRANTS ON TABLE clinical_observations
+Principal                            | ActionType | ObjectType | ObjectKey                                          
+-------------------------------------+------------+------------+----------------------------------------------------
+775366c2-e2bc-435c-af28-0cd5ca2386a0 | SELECT     | TABLE      | lead_opt_demo_clinical.silver.clinical_observations
+
+(1 rows)
+
+## CONTRAST — PRECLINICAL catalog (broader): schema-level SELECT to multiple SPs
+### SHOW GRANTS ON SCHEMA lead_opt_demo.silver
+Principal                            | ActionType | ObjectType | ObjectKey           
+-------------------------------------+------------+------------+---------------------
+775366c2-e2bc-435c-af28-0cd5ca2386a0 | SELECT     | SCHEMA     | lead_opt_demo.silver
+775366c2-e2bc-435c-af28-0cd5ca2386a0 | USE SCHEMA | SCHEMA     | lead_opt_demo.silver
+eed3b02d-5fda-409a-96e9-240e2a11e377 | SELECT     | SCHEMA     | lead_opt_demo.silver
+eed3b02d-5fda-409a-96e9-240e2a11e377 | USE SCHEMA | SCHEMA     | lead_opt_demo.silver
+
+(4 rows)
