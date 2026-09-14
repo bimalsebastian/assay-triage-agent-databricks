@@ -1,0 +1,22 @@
+# Stage 00 — mock LIMS deployed as a Databricks App (real workspace)
+# Workspace: adb-7405610110498224.4.azuredatabricks.net
+
+App name : lead-opt-mock-lims
+App URL  : https://lead-opt-mock-lims-7405610110498224.4.azure.databricksapps.com
+Compute  : ACTIVE
+Deploy   : SUCCEEDED ("App started successfully")
+
+# Authenticated call from CLI (Databricks OAuth bearer + vendor X-API-Key):
+#   GET /health                          -> 200
+#   GET /lims/v1/export/assay_results    -> 200, awkward vendor envelope:
+
+{"LIMS_EXPORT":{"exportedAt":"20260914 09:00:00.000","object":"assay_results",
+"resultSet":{"totalCount":240,"returned":1,"offset":0,"nextOffset":1,
+"records":[{"smpl":"LO-CMPD00001-P2-C02-R2","analyte":"CACO2_PAPP",
+"meas":{"val":"23.067","uom":"1e-6cm/s"},"acqTs":"20260912 04:09:15.558",
+"proto":"CACO2-BIDIR-v4","operator":"op-1408",
+"batchGuid":"69773619ea23a6ce4bd54e7db3b0f79a","qcFlag":"PASS"}]}}}
+
+# Note: Databricks Apps accept OAuth tokens only (a PAT returns 302 -> login),
+# so the ingestion pipeline authenticates to the App via service-principal
+# OAuth (M2M client-credentials), not a stored PAT.
