@@ -1,0 +1,17 @@
+# Stage 00 — LOCAL validation (interim, pre-deployment)
+# Custom connector driven against the mock LIMS over HTTP on localhost.
+# Real workspace bronze-table evidence is captured separately after deploy.
+# Generated: 2026-09-14T10:34:26Z
+
+list_tables() -> ['assay_results']
+read_table_metadata() -> {'primary_keys': ['sample_id', 'assay_name'], 'cursor_field': 'acquired_ts', 'ingestion_type': 'snapshot'}
+read_table() paginated -> 240 clean records
+distinct compounds: 24
+hERG_IC50 readings below 1.0 uM (future tox flags): 7
+
+sample clean records:
+   {'sample_id': 'LO-CMPD00001-P2-C02-R2', 'compound_id': 'CMPD00001', 'plate': 'P2', 'well': 'C02', 'replicate': 2, 'assay_name': 'CACO2_PAPP', 'result_value': 23.067, 'result_unit': '1e-6cm/s', 'acquired_ts': '2026-09-12 04:09:15.558', 'assay_protocol': 'CACO2-BIDIR-v4', 'operator_id': 'op-1408', 'batch_guid': '69773619ea23a6ce4bd54e7db3b0f79a', 'qc_flag': 'PASS'}
+   {'sample_id': 'LO-CMPD00001-P2-D01-R1', 'compound_id': 'CMPD00001', 'plate': 'P2', 'well': 'D01', 'replicate': 1, 'assay_name': 'LOGD_7_4', 'result_value': 2.249, 'result_unit': '', 'acquired_ts': '2026-09-11 19:29:30.542', 'assay_protocol': 'SHAKE-FLASK-LOGD-v2', 'operator_id': 'op-1836', 'batch_guid': '51176878ba5f87370f5dadc9041810f1', 'qc_flag': 'PASS'}
+   {'sample_id': 'LO-CMPD00001-P2-D08-R2', 'compound_id': 'CMPD00001', 'plate': 'P2', 'well': 'D08', 'replicate': 2, 'assay_name': 'CYP3A4_IC50', 'result_value': 11.538, 'result_unit': 'uM', 'acquired_ts': '2026-09-10 21:01:32.355', 'assay_protocol': 'LCMS-CYP-INH-v2', 'operator_id': 'op-1873', 'batch_guid': '1f42a8ea5b32e069b795f08408ad2daa', 'qc_flag': 'PASS'}
+
+ALL LOCAL CONNECTOR ASSERTIONS PASSED
