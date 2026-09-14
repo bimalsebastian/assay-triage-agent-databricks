@@ -1,0 +1,33 @@
+# Stage 09 — compound-drug crosswalk evidence (REAL workspace)
+# lead_opt_demo.silver.compound_drug_crosswalk — SYNTHETIC, intentionally simplified
+# Generated: 2026-09-14T16:07:48Z
+
+## Full crosswalk — clean 1:1, ambiguous multi-map, and unresolved cases
+compound_id | drug_code | mapping_source                      | confidence
+------------+-----------+-------------------------------------+-----------
+CMPD00001   | DRG-0001  | synthetic 1:1 by design             | 1.0       
+CMPD00004   | DRG-0004  | synthetic 1:1 by design             | 1.0       
+CMPD00008   | DRG-0008  | synthetic 1:1 by design             | 1.0       
+CMPD00012   | DRG-0012  | synthetic 1:1 by design             | 1.0       
+CMPD00006   | DRG-0777  | ambiguous multi-map (synthetic)     | 0.5       
+CMPD00007   | DRG-0777  | ambiguous multi-map (synthetic)     | 0.5       
+CMPD00014   | NULL      | unresolved - no clinical identifier | 0.0       
+
+(7 rows)
+
+## Cross-catalog validation (read drug_code from clinical + compound_id from preclinical)
+compound_id | drug_code | drug_code_seen_in_clinical | compound_seen_in_registry
+------------+-----------+----------------------------+--------------------------
+CMPD00001   | DRG-0001  | true                       | true                     
+CMPD00004   | DRG-0004  | true                       | true                     
+CMPD00006   | DRG-0777  | true                       | true                     
+CMPD00007   | DRG-0777  | true                       | true                     
+CMPD00008   | DRG-0008  | true                       | true                     
+CMPD00012   | DRG-0012  | true                       | true                     
+CMPD00014   | NULL      | true                       | true                     
+
+(7 rows)
+
+## Least-privilege check: ingest SP (table-level clinical SELECT only) can do the cross-catalog read
+  as SP -> distinct drug_codes in clinical_observations: [['5']]
+  state: SUCCEEDED
