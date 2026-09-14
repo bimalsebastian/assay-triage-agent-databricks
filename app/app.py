@@ -159,6 +159,24 @@ def kpi():
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
 
 
+@app.get("/api/clinical-summary")
+def clinical_summary(compound: str):
+    """Aggregate clinical-correlation summary for a compound, read from the
+    stage-12 SCOPED view (clinical_correlation_summary) — the same aggregate
+    surface the clinical Genie room uses. The app SP can read only this view,
+    not the clinical catalog tables (verified in stage 12), so this is not a
+    backdoor into clinical data."""
+    try:
+        c = compound.replace("'", "")
+        rows = warehouse_query(
+            "SELECT compound_id, correlation_state, n_adverse_obs, signal_summary "
+            "FROM lead_opt_demo.silver.clinical_correlation_summary "
+            f"WHERE compound_id = '{c}'")
+        return {"compound_id": compound, "summary": rows[0] if rows else None}
+    except Exception as e:  # noqa: BLE001
+        return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
+
+
 @app.get("/api/history")
 def history(compound: str, assay: str):
     """Real historical readings for a compound+assay from silver.assay_results."""
@@ -236,6 +254,10 @@ INDEX_HTML = """<!doctype html>
  .kpi{font-size:26px;font-weight:700;color:#0b3d2e}
  .bar{height:14px;background:#0b3d2e;border-radius:3px;display:inline-block}
  .htab td,.htab th{padding:4px 8px;font-size:12px}
+ .cc{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid transparent}
+ .cc.correlated{background:#fdeaea;color:#b3261e;border-color:#f3c0c0}
+ .cc.checked{background:#eef1f4;color:#41505f}
+ .cc.nomap{background:transparent;color:#8a97a5;border-color:#d5dbe1;border-style:dashed}
 </style></head><body>
 <header><h1>Lead-Opt Assay Triage — review queue</h1><span id="user"></span></header>
 <main>
@@ -253,9 +275,9 @@ INDEX_HTML = """<!doctype html>
  <div class="card">
   <h2>Compounds with open flags <span id="count" class="muted"></span></h2>
   <table id="rollup"><thead><tr>
-   <th></th><th>Compound</th><th>Open flags</th><th>Worst breach</th>
+   <th></th><th>Compound</th><th>Open flags</th><th>Worst breach</th><th>Clinical correlation</th>
   </tr></thead><tbody></tbody></table>
-  <div class="muted" style="margin-top:8px">Click a compound to expand its flagged readings (widest breach first), resolve them, and see its assay history.</div>
+  <div class="muted" style="margin-top:8px">Click a compound to expand its flagged readings (widest breach first), resolve them, see its assay history, and the scoped clinical summary. Clinical states are rendered distinctly: <span class="cc correlated">correlated</span> <span class="cc checked">checked, no correlation</span> <span class="cc nomap">no clinical data</span>.</div>
  </div>
  <div class="card">
   <h2>Ask the Genie space</h2>
@@ -266,6 +288,12 @@ INDEX_HTML = """<!doctype html>
 </main>
 <script>
 const REASONS=[["false_positive","False positive"],["confirmed_concern","Confirmed concern"],["escalated_for_confirmatory_assay","Escalate for confirmatory assay"]];
+function ccBadge(state){
+ if(state==='correlated')return '<span class="cc correlated">⚠ correlated</span>';
+ if(state==='checked_no_correlation')return '<span class="cc checked">checked · no correlation</span>';
+ if(state==='no_mapping')return '<span class="cc nomap">no clinical data</span>';
+ return '<span class="cc nomap">—</span>';
+}
 async function whoami(){const d=await(await fetch('/api/whoami')).json();document.getElementById('user').textContent=d.user;}
 async function loadKpi(){
  const d=await(await fetch('/api/kpi')).json();
@@ -287,16 +315,16 @@ async function loadRollup(){
  const tb=document.querySelector('#rollup tbody');tb.innerHTML='';
  d.compounds.forEach(c=>{
   const tr=document.createElement('tr');tr.className='crow';tr.onclick=()=>toggle(c,tr);
-  tr.innerHTML=`<td>▶</td><td><b>${c.compound_id}</b></td><td><span class="badge">${c.open_flags}</span></td><td>${(+c.worst_breach).toFixed(3)}</td>`;
+  tr.innerHTML=`<td>▶</td><td><b>${c.compound_id}</b></td><td><span class="badge">${c.open_flags}</span></td><td>${(+c.worst_breach).toFixed(3)}</td><td>${ccBadge(c.clinical_correlation_state)}</td>`;
   tb.appendChild(tr);
  });
- if(!d.compounds.length)tb.innerHTML='<tr><td colspan=4 class="muted">Queue is empty.</td></tr>';
+ if(!d.compounds.length)tb.innerHTML='<tr><td colspan=5 class="muted">Queue is empty.</td></tr>';
 }
 function toggle(c,tr){
  if(tr.nextSibling && tr.nextSibling.classList && tr.nextSibling.classList.contains('detail')){tr.nextSibling.remove();tr.cells[0].textContent='▶';return;}
  tr.cells[0].textContent='▼';
  const det=document.createElement('tr');det.className='detail';
- const td=document.createElement('td');td.colSpan=4;det.appendChild(td);
+ const td=document.createElement('td');td.colSpan=5;det.appendChild(td);
  let html='<table><thead><tr><th>Assay</th><th>Reading</th><th>Threshold</th><th>Breach</th><th>Why</th><th>Resolve</th></tr></thead><tbody>';
  c.readings.forEach((r,i)=>{
   const dir=(r.concern_direction==='high')?'high':'low';
@@ -308,9 +336,18 @@ function toggle(c,tr){
    <td><select id="sel_${r.reading_id}"><option value="">reason…</option>${opts}</select>
    <button onclick="resolve('${r.reading_id}',this)">Resolve</button></td></tr>`;
  });
- html+='</tbody></table><div id="hist_'+c.compound_id+'" class="muted" style="margin-top:8px">loading history…</div>';
+ html+='</tbody></table>';
+ html+='<div style="margin-top:10px">Clinical correlation: '+ccBadge(c.clinical_correlation_state)+' <span id="clin_'+c.compound_id+'" class="muted"></span></div>';
+ html+='<div id="hist_'+c.compound_id+'" class="muted" style="margin-top:8px">loading history…</div>';
  td.innerHTML=html;tr.after(det);
- loadHistory(c);
+ loadHistory(c);loadClinical(c);
+}
+async function loadClinical(c){
+ const box=document.getElementById('clin_'+c.compound_id);
+ const d=await(await fetch('/api/clinical-summary?compound='+encodeURIComponent(c.compound_id))).json();
+ const s=d.summary;
+ box.textContent = s ? ('— '+s.signal_summary+' (adverse obs: '+s.n_adverse_obs+') · via scoped clinical_correlation_summary view')
+                     : '— no scoped clinical summary row';
 }
 async function loadHistory(c){
  const assays=[...new Set(c.readings.map(r=>r.assay_name))];

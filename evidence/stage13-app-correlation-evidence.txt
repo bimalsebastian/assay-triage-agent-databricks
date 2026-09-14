@@ -1,0 +1,28 @@
+# Stage 13 — Databricks App correlation indicator evidence (REAL deployed app, end of clinical chain)
+# App lead-opt-review (https://lead-opt-review-7405610110498224.4.azure.databricksapps.com). Generated: 2026-09-14T16:20:59Z
+
+## Rendered rollup content — each compound with its 3-state clinical correlation
+## (rendered distinctly in the UI: correlated / checked·no-correlation / no clinical data)
+compound    open_flags clinical_correlation_state signal
+  CMPD00004   3          checked_no_correlation   mapped to DRG-0004 — checked clinical data, no adver
+  CMPD00008   2          checked_no_correlation   mapped to DRG-0008 — checked clinical data, no adver
+  CMPD00024   2          no_mapping               no crosswalk mapping (or unresolved identifier) for 
+  CMPD00014   1          no_mapping               no crosswalk mapping (or unresolved identifier) for 
+  CMPD00003   1          no_mapping               no crosswalk mapping (or unresolved identifier) for 
+  CMPD00007   1          correlated               mapped to DRG-0777 — adverse_reaction signal: mild_r
+  CMPD00006   1          correlated               mapped to DRG-0777 — adverse_reaction signal: mild_r
+
+  distinct correlation states rendered: ['checked_no_correlation', 'correlated', 'no_mapping']
+
+## Drill-in aggregate summary — via the stage-12 SCOPED view (not a clinical-catalog backdoor)
+  CMPD00012 -> correlated | adverse_reaction signal present in clinical data (adverse 2)
+  CMPD00006 -> correlated | adverse_reaction signal present in clinical data (adverse 1)
+  CMPD00004 -> checked_no_correlation | clinical data checked, no adverse_reaction signal (adverse 0)
+  CMPD00024 -> no_mapping | no clinical mapping available for this compound (adverse 0)
+
+## Note on the 'ask Genie' box (separate-room design decision, stage 12)
+The base ask box targets the preclinical Genie room. Because stage 12 deliberately
+created a SEPARATE scoped clinical room (not one combined room), clinical NL is served
+by that scoped room (see stage12 evidence: 3 clinical Q&A answered) and surfaced in the
+app via the drill-in summary above — both go through the aggregate scoped surface, never
+the clinical catalog tables (app SP is denied there, proven in stage 12).
