@@ -1,0 +1,56 @@
+# Stage 02 — intelligence layer execution evidence (REAL workspace)
+# Workspace: adb-7405610110498224.4.azuredatabricks.net
+# Function: lead_opt_demo.silver.check_toxicity_flag (deterministic, auditable)
+# Batch output: lead_opt_demo.silver.assay_flags
+# Generated: 2026-09-14T11:39:55Z
+
+## Flag summary
+total | flagged | not_flagged
+------+---------+------------
+240   | 14      | 226        
+
+(1 rows)
+
+## Flagged counts by assay
+assay_name  | flagged
+------------+--------
+hERG_IC50   | 7      
+LOGD_7_4    | 3      
+CYP3A4_IC50 | 3      
+KINETIC_SOL | 1      
+
+(4 rows)
+
+## Real FLAGGED rows (with explainable reason)
+compound_id | assay_name  | result_value | threshold | margin | reason                                                                                                                                                       
+------------+-------------+--------------+-----------+--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+CMPD00014   | KINETIC_SOL | 4.51         | 10.0      | -5.49  | FLAGGED: KINETIC_SOL reading 4.51 uM breaches synthetic low-concern threshold 10.0 uM (margin -5.49). Compound prior mean 7.763 over 2 historical readings.  
+CMPD00012   | hERG_IC50   | 0.259        | 1.0       | -0.741 | FLAGGED: hERG_IC50 reading 0.259 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.741). Compound prior mean 0.264 over 2 historical readings.   
+CMPD00012   | hERG_IC50   | 0.269        | 1.0       | -0.731 | FLAGGED: hERG_IC50 reading 0.269 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.731). Compound prior mean 0.264 over 2 historical readings.   
+CMPD00012   | CYP3A4_IC50 | 0.421        | 1.0       | -0.579 | FLAGGED: CYP3A4_IC50 reading 0.421 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.579). Compound prior mean 1.7405 over 2 historical readings.
+CMPD00004   | CYP3A4_IC50 | 0.709        | 1.0       | -0.291 | FLAGGED: CYP3A4_IC50 reading 0.709 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.291). Compound prior mean 1.171 over 2 historical readings. 
+
+(5 rows)
+
+## Real UNFLAGGED rows (with reason)
+compound_id | assay_name  | result_value | threshold | margin | reason                                                                                                     
+------------+-------------+--------------+-----------+--------+------------------------------------------------------------------------------------------------------------
+CMPD00001   | CACO2_PAPP  | 23.067       | 1.0       | 22.067 | OK: CACO2_PAPP reading 23.067 1e-6cm/s within synthetic low-concern threshold 1.0 1e-6cm/s (margin 22.067).
+CMPD00001   | LOGD_7_4    | 2.249        | 5.0       | -2.751 | OK: LOGD_7_4 reading 2.249  within synthetic high-concern threshold 5.0  (margin -2.751).                  
+CMPD00001   | CYP3A4_IC50 | 11.538       | 1.0       | 10.538 | OK: CYP3A4_IC50 reading 11.538 uM within synthetic low-concern threshold 1.0 uM (margin 10.538).           
+
+(3 rows)
+
+## Unit tests (hand-built readings; boundary = not flagged)
+
+>>> [1/1] WITH results AS (
+test_name                 | expected | actual | passed
+--------------------------+----------+--------+-------
+high_above_threshold_FLAG | true     | true   | true  
+high_at_boundary_ok       | false    | false  | true  
+high_below_threshold_ok   | false    | false  | true  
+low_above_threshold_ok    | false    | false  | true  
+low_at_boundary_ok        | false    | false  | true  
+low_below_threshold_FLAG  | true     | true   | true  
+
+(6 rows)
