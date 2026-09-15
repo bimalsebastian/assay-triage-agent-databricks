@@ -1,5 +1,13 @@
 # Genie sample questions — Lead-Opt Assay Triage space
 
+> **Access (stage 14):** both rooms below are reached through ONE interface — the
+> Databricks Managed Genie MCP server (`{host}/api/2.0/mcp/genie/{space_id}`),
+> wrapped by `genie/genie_mcp.py :: GenieMCP.ask(space_id, question)`. The app's
+> ask box has a room selector (preclinical / clinical) backed by the same client;
+> each room keeps its own scope and grants — the transport is unified, the
+> governance surface is not.
+
+
 Natural-language questions a scientist would actually ask, with the table/join
 each should resolve to. Doubles as a lightweight regression check and demo
 script. Space is scoped to exactly `lead_opt_demo.silver.{assay_results,
