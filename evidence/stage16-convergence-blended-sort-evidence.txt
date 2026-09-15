@@ -1,0 +1,32 @@
+# Stage 16 — clinical convergence headline (#3) + blended risk sort (#4) — REAL run
+# App lead-opt-review (https://lead-opt-review-7405610110498224.4.azure.databricksapps.com). Generated: 2026-09-15T07:19:13Z
+
+## Improvements delivered
+- #3  clinical-convergence headline: how many open flagged compounds also carry a clinical signal.
+- #4  blended risk sort: clinically-correlated compounds float to the top of the rollup, ahead of
+      larger preclinical-only breaches — clinical correlation treated as the strongest risk dimension.
+
+## Live /api/queue/rollup — convergence headline (deployed app, Lakebase as app SP)
+{
+  "compounds_open": 6,
+  "by_state": {
+    "checked_no_correlation": 2,
+    "correlated": 2,
+    "no_mapping": 2
+  },
+  "correlated": 2,
+  "convergence_rate": 0.3333,
+  "correlation_rate_of_mapped": 0.5
+}
+
+## Live rollup order — BLENDED RISK SORT (note correlated compounds sort above the bigger breach)
+  rank  compound   flags  worst_breach  clinical_state
+   2    CMPD00007   1      0.204        correlated
+   2    CMPD00006   1      0.154        correlated
+   1    CMPD00004   1      0.348        checked_no_correlation
+   1    CMPD00008   1      0.156        checked_no_correlation
+   0    CMPD00014   1      5.490        no_mapping
+   0    CMPD00024   1      0.205        no_mapping
+
+  Read: CMPD00007/00006 (correlated, breach ~0.15-0.20) now rank ABOVE CMPD00014
+  (no clinical data, breach 5.49). A real clinical signal outranks a bigger preclinical-only breach.

@@ -134,17 +134,29 @@ def resolve_item(reading_id: str, resolved_by: str, resolution_reason: str,
         return inserted > 0 or cur.rowcount > 0
 
 
+# How strongly a clinical state raises a compound's review priority. Clinical
+# correlation is the strongest risk signal, so a correlated compound sorts above
+# any preclinical-only breach; within a clinical tier, flag count then breach.
+_CLINICAL_RANK_SQL = """CASE max(clinical_correlation_state)
+                          WHEN 'correlated' THEN 2
+                          WHEN 'checked_no_correlation' THEN 1
+                          ELSE 0 END"""
+
+
 def get_queue_rollup() -> list[dict]:
     """Compound-level rollup of the open queue: one row per compound with its
     open flag count and worst breach, plus its flagged readings nested (sorted
-    widest-breach first). Compounds ordered by flag count, then worst breach."""
-    sql = """
+    widest-breach first). BLENDED RISK SORT: compounds with a clinical correlation
+    float to the top, then by flag count, then worst breach — so a compound that
+    is both a wide preclinical breach AND clinically correlated rises highest."""
+    sql = f"""
         SELECT compound_id,
                count(*) AS open_flags,
                max(abs(margin)) AS worst_breach,
                max(clinical_correlation_state) AS clinical_correlation_state,
                max(clinical_drug_code) AS clinical_drug_code,
                max(clinical_signal_detail) AS clinical_signal_detail,
+               {_CLINICAL_RANK_SQL} AS clinical_rank,
                json_agg(json_build_object(
                    'reading_id', reading_id, 'assay_name', assay_name,
                    'result_value', result_value, 'result_unit', result_unit,
@@ -156,11 +168,38 @@ def get_queue_rollup() -> list[dict]:
         FROM review_queue
         WHERE status = 'open'
         GROUP BY compound_id
-        ORDER BY open_flags DESC, worst_breach DESC
+        ORDER BY clinical_rank DESC, open_flags DESC, worst_breach DESC
     """
     with get_connection() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(sql)
         return [dict(r) for r in cur.fetchall()]
+
+
+def get_clinical_convergence() -> dict:
+    """Convergence of preclinical flags with clinical signal across the OPEN queue,
+    counted once per compound. The headline number that says the two data domains
+    were actually joined: how many flagged compounds also carry a clinical signal."""
+    with get_connection() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute(
+            """WITH per_compound AS (
+                   SELECT compound_id,
+                          coalesce(max(clinical_correlation_state), 'no_mapping') AS state
+                     FROM review_queue WHERE status = 'open'
+                    GROUP BY compound_id)
+               SELECT state, count(*) AS compounds
+                 FROM per_compound GROUP BY state"""
+        )
+        by_state = {r["state"]: r["compounds"] for r in cur.fetchall()}
+    total = sum(by_state.values())
+    correlated = by_state.get("correlated", 0)
+    mapped = correlated + by_state.get("checked_no_correlation", 0)
+    return {
+        "compounds_open": total,
+        "by_state": by_state,
+        "correlated": correlated,
+        "convergence_rate": round(correlated / total, 4) if total else None,
+        "correlation_rate_of_mapped": round(correlated / mapped, 4) if mapped else None,
+    }
 
 
 def get_flags_by_assay(days: int = 30) -> list[dict]:

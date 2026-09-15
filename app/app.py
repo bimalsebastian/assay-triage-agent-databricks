@@ -122,9 +122,11 @@ def _json_safe(obj):
 
 @app.get("/api/queue/rollup")
 def queue_rollup():
-    """Compound-level rollup (one row per compound, readings nested, severity-sorted)."""
+    """Compound-level rollup (one row per compound, readings nested), blended-risk
+    sorted (clinical correlation first), with a clinical-convergence headline."""
     try:
         return {"summary": lakebase.get_queue_summary(),
+                "convergence": _json_safe(lakebase.get_clinical_convergence()),
                 "compounds": _json_safe(lakebase.get_queue_rollup())}
     except Exception as e:  # noqa: BLE001
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
@@ -279,6 +281,7 @@ INDEX_HTML = """<!doctype html>
  </div>
  <div class="card">
   <h2>Compounds with open flags <span id="count" class="muted"></span></h2>
+  <div id="convergence" style="margin:2px 0 12px;font-size:13px"></div>
   <table id="rollup"><thead><tr>
    <th></th><th>Compound</th><th>Open flags</th><th>Worst breach</th><th>Clinical correlation</th>
   </tr></thead><tbody></tbody></table>
@@ -335,6 +338,15 @@ async function loadFba(){
 async function loadRollup(){
  const d=await(await fetch('/api/queue/rollup')).json();
  document.getElementById('count').textContent='('+(d.summary.open||0)+' open flags across '+d.compounds.length+' compounds)';
+ const cv=d.convergence||{};const bs=cv.by_state||{};const cbox=document.getElementById('convergence');
+ if(cv.compounds_open){
+  cbox.innerHTML='<b style="color:#b3261e">'+(cv.correlated||0)+' of '+cv.compounds_open+'</b> open compounds show a clinical correlation'
+   +' ('+Math.round((cv.convergence_rate||0)*100)+'% convergence). '
+   +'<span class="cc correlated">correlated '+(bs.correlated||0)+'</span> '
+   +'<span class="cc checked">checked '+(bs.checked_no_correlation||0)+'</span> '
+   +'<span class="cc nomap">no clinical data '+(bs.no_mapping||0)+'</span>'
+   +'<div class="muted" style="margin-top:4px">Rows are blended-risk sorted: clinically-correlated compounds first, then flag count, then breach.</div>';
+ } else { cbox.innerHTML=''; }
  const tb=document.querySelector('#rollup tbody');tb.innerHTML='';
  d.compounds.forEach(c=>{
   const tr=document.createElement('tr');tr.className='crow';tr.onclick=()=>toggle(c,tr);
