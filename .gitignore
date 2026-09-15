@@ -4,3 +4,4 @@ __pycache__/
 .databricks/
 nohup.out
 app/lakebase.py
+app/genie_mcp.py

@@ -17,13 +17,13 @@ from __future__ import annotations
 
 import json
 import os
-import time
 import urllib.request
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 import lakebase  # deployed alongside this file (copy of serving/lakebase.py)
+from genie_mcp import GenieMCP  # deployed alongside this file (copy of genie/genie_mcp.py)
 
 HOST = os.environ["DATABRICKS_HOST"].rstrip("/")
 if not HOST.startswith("http"):  # Apps set DATABRICKS_HOST without a scheme
@@ -31,9 +31,20 @@ if not HOST.startswith("http"):  # Apps set DATABRICKS_HOST without a scheme
 CLIENT_ID = os.environ["DATABRICKS_CLIENT_ID"]
 CLIENT_SECRET = os.environ["DATABRICKS_CLIENT_SECRET"]
 GENIE_SPACE_ID = os.environ["GENIE_SPACE_ID"]
+# Separate, scoped clinical room (stage 12). Optional so the app still boots if
+# the clinical extension isn't deployed; the clinical tab is hidden when unset.
+CLINICAL_GENIE_SPACE_ID = os.environ.get("CLINICAL_GENIE_SPACE_ID", "")
 LAKEBASE_HOST = os.environ["LAKEBASE_HOST"]
 PGDATABASE = os.environ.get("PGDATABASE", "lead_opt")
 WAREHOUSE_ID = os.environ["WAREHOUSE_ID"]
+
+# One Genie client (Databricks Managed MCP) addresses BOTH rooms by space id.
+# The named rooms below are all it will route to — the preclinical room and the
+# separate aggregate-only clinical room keep their distinct scopes/grants; this
+# is just a single transport in front of them.
+GENIE_ROOMS = {"preclinical": GENIE_SPACE_ID}
+if CLINICAL_GENIE_SPACE_ID:
+    GENIE_ROOMS["clinical"] = CLINICAL_GENIE_SPACE_ID
 
 app = FastAPI(title="Lead-Opt Assay Triage")
 
@@ -73,41 +84,20 @@ def warehouse_query(sql: str) -> list[dict]:
     return [dict(zip(cols, row)) for row in rows]
 
 
-def _genie(method: str, path: str, body: dict | None = None) -> dict:
-    data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(f"{HOST}{path}", data=data, method=method)
-    req.add_header("Authorization", f"Bearer {_oauth_token()}")
-    req.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(req) as r:
-        return json.loads(r.read().decode())
+# Single unified Genie interface over Databricks Managed MCP. Authenticates as
+# the app SP (same OAuth token used for Lakebase and the warehouse); routes to
+# whichever room the caller names.
+_genie_client = GenieMCP(HOST, _oauth_token)
 
 
-def ask_genie(question: str) -> dict:
-    sp = GENIE_SPACE_ID
-    start = _genie("POST", f"/api/2.0/genie/spaces/{sp}/start-conversation",
-                   {"content": question})
-    conv = start.get("conversation_id") or start["conversation"]["id"]
-    msg = start.get("message_id") or start["message"]["id"]
-    m = {}
-    for _ in range(40):
-        m = _genie("GET", f"/api/2.0/genie/spaces/{sp}/conversations/{conv}/messages/{msg}")
-        if m.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
-            break
-        time.sleep(3)
-    text, sql, rows = None, None, None
-    for att in m.get("attachments", []) or []:
-        if att.get("text"):
-            text = att["text"].get("content")
-        if att.get("query"):
-            sql = att["query"].get("query")
-            aid = att.get("attachment_id")
-            try:
-                qr = _genie("GET", f"/api/2.0/genie/spaces/{sp}/conversations/{conv}"
-                                   f"/messages/{msg}/attachments/{aid}/query-result")
-                rows = qr.get("statement_response", {}).get("result", {}).get("data_array")
-            except Exception:  # noqa: BLE001
-                rows = None
-    return {"status": m.get("status"), "text": text, "sql": sql, "rows": rows}
+def ask_genie(question: str, room: str = "preclinical") -> dict:
+    space_id = GENIE_ROOMS.get(room)
+    if not space_id:
+        return {"status": "ERROR", "text": f"unknown room '{room}'",
+                "sql": None, "rows": None, "room": room}
+    result = _genie_client.ask(space_id, question)
+    result["room"] = room
+    return result
 
 
 def _user(request: Request) -> str:
@@ -209,13 +199,23 @@ async def resolve(request: Request):
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
 
 
+@app.get("/api/rooms")
+def rooms():
+    """Which Genie rooms this app can address (drives the ask-box selector)."""
+    return {"rooms": list(GENIE_ROOMS.keys())}
+
+
 @app.post("/api/ask")
 async def ask(request: Request):
     body = await request.json()
     q = (body.get("question") or "").strip()
+    room = (body.get("room") or "preclinical").strip()
     if not q:
         return JSONResponse({"error": "empty question"}, status_code=400)
-    return ask_genie(q)
+    if room not in GENIE_ROOMS:
+        return JSONResponse({"error": f"unknown room '{room}'",
+                             "allowed": list(GENIE_ROOMS)}, status_code=400)
+    return ask_genie(q, room)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -280,9 +280,13 @@ INDEX_HTML = """<!doctype html>
   <div class="muted" style="margin-top:8px">Click a compound to expand its flagged readings (widest breach first), resolve them, see its assay history, and the scoped clinical summary. Clinical states are rendered distinctly: <span class="cc correlated">correlated</span> <span class="cc checked">checked, no correlation</span> <span class="cc nomap">no clinical data</span>.</div>
  </div>
  <div class="card">
-  <h2>Ask the Genie space</h2>
-  <div style="display:flex;gap:8px"><input id="q" placeholder="e.g. Which compounds are currently flagged?"><button onclick="ask()">Ask</button></div>
-  <div id="answer" class="muted">Answers come from the governed silver tables via the Genie space.</div>
+  <h2>Ask a Genie room <span class="muted">via Databricks Managed MCP</span></h2>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+   <select id="room" title="Which governed Genie room to ask"></select>
+   <input id="q" placeholder="e.g. Which compounds are currently flagged?" style="flex:1;min-width:220px">
+   <button onclick="ask()">Ask</button></div>
+  <div id="roomNote" class="muted" style="margin-top:6px"></div>
+  <div id="answer" class="muted" style="margin-top:8px">Answers come from the governed silver tables via the selected Genie room (one MCP interface, room-scoped).</div>
   <div id="sql" class="muted" style="margin-top:8px"></div>
  </div>
 </main>
@@ -367,13 +371,22 @@ async function resolve(id,btn){
  const r=await fetch('/api/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reading_id:id,resolution_reason:reason,note:'resolved from dashboard'})});
  if(r.ok){await loadRollup();await loadKpi();await loadFba();}else{btn.disabled=false;btn.textContent='Resolve';}
 }
+const ROOM_LABELS={preclinical:'Preclinical (assay silver)',clinical:'Clinical correlation (aggregate-only, scoped)'};
+const ROOM_HINT={preclinical:'Governed preclinical silver tables.',clinical:'Separate scoped room — aggregate correlation summary only, no patient-level data.'};
+async function loadRooms(){
+ const sel=document.getElementById('room');const d=await(await fetch('/api/rooms')).json();
+ sel.innerHTML=(d.rooms||[]).map(r=>`<option value="${r}">${ROOM_LABELS[r]||r}</option>`).join('');
+ sel.onchange=()=>{document.getElementById('roomNote').textContent=ROOM_HINT[sel.value]||'';};
+ sel.onchange();
+}
 async function ask(){
- const q=document.getElementById('q').value;const a=document.getElementById('answer');const s=document.getElementById('sql');
- if(!q)return;a.textContent='Thinking…';s.textContent='';
- const d=await(await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})})).json();
+ const q=document.getElementById('q').value;const room=document.getElementById('room').value;
+ const a=document.getElementById('answer');const s=document.getElementById('sql');
+ if(!q)return;a.textContent='Thinking… ('+(ROOM_LABELS[room]||room)+')';s.textContent='';
+ const d=await(await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,room:room})})).json();
  a.textContent=d.text||('(no text answer; status '+d.status+')');
  if(d.sql){s.innerHTML='<code>'+d.sql.replace(/</g,'&lt;')+'</code>';}
 }
-whoami();loadKpi();loadFba();loadRollup();
+whoami();loadRooms();loadKpi();loadFba();loadRollup();
 </script>
 </body></html>"""

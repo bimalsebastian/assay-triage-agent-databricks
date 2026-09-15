@@ -8,6 +8,8 @@ command:
 env:
   - name: GENIE_SPACE_ID
     value: "01f1b03319ec17daa40d884a21f77386"
+  - name: CLINICAL_GENIE_SPACE_ID
+    value: "01f1b0576897173aa44f717957b922d0"
   - name: LAKEBASE_HOST
     value: "ep-hidden-fire-e9y4qh66.database.eastus.azuredatabricks.net"
   - name: PGDATABASE

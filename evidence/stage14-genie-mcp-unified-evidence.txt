@@ -1,0 +1,38 @@
+# Stage 14 — Genie access converted to Databricks Managed MCP (unified interface for BOTH rooms) — REAL run
+# App lead-opt-review (https://lead-opt-review-7405610110498224.4.azure.databricksapps.com). Generated: 2026-09-15T07:11:38Z
+
+## What changed
+- app/app.py + genie/ask.py now call the Databricks Managed Genie MCP server instead of the bespoke Genie Conversations REST client.
+- ONE interface (genie/genie_mcp.py :: GenieMCP.ask(space_id, question)) addresses ANY room by space id.
+- The app routes named rooms {preclinical, clinical} through that single client; a room selector was added to the ask box (wires the separate scoped clinical room into the app — improvement #1).
+- Endpoint verified live: {host}/api/2.0/mcp/genie/{space_id}; JSON-RPC 2.0; initialize -> notifications/initialized -> tools/call; result in result.structuredContent.
+
+## MCP tools exposed per room (live tools/list via the unified client, as U2M)
+preclinical (01f1b03319ec17daa40d884a21f77386) tools: ['query_space_01f1b03319ec17daa40d884a21f77386', 'poll_response_01f1b03319ec17daa40d884a21f77386']
+clinical (01f1b0576897173aa44f717957b922d0) tools: ['query_space_01f1b0576897173aa44f717957b922d0', 'poll_response_01f1b0576897173aa44f717957b922d0']
+
+## Live deployed app — /api/rooms
+{"rooms":["preclinical","clinical"]}
+## Live deployed app — /api/ask room=preclinical (runs as app SP over MCP)
+room: preclinical | status: COMPLETED
+answer: There are **9 currently flagged compounds** in the results: **CMPD00014, CMPD00012, CMPD00004, CMPD00024, CMPD00007, CMPD00008, CMPD00006,** and **CMPD00003**. Examples include:
+- **CMPD00014** — flag
+sql: SELECT `compound_id`, `assay_name`, `result_value`, `threshold`, `reason` FROM `lead_opt_demo`.`silver`.`assay_flags` WHERE `is_flagged` = true ORDER BY `margin` ASC
+rows[0]: ['CMPD00014', 'KINETIC_SOL', '4.51', '10.0', 'FLAGGED: KINETIC_SOL reading 4.51 uM breaches synthetic low-concern threshold 10.0 uM (margin -5.49). Compound prior mean 7.763 over 2 historical readings.']
+
+## Live deployed app — /api/ask room=clinical (SEPARATE scoped room, same MCP interface)
+room: clinical | status: COMPLETED
+answer: There are **3** correlation states in the data: **checked_no_correlation** has **2** compounds, **correlated** has **3**, and **no_mapping** has **3**. The highest counts are tied between **correlated
+sql: SELECT `correlation_state`, COUNT(*) AS `compound_count` FROM `lead_opt_demo`.`silver`.`clinical_correlation_summary` WHERE `correlation_state` IS NOT NULL GROUP BY `correlation_st
+rows: [['checked_no_correlation', '2'], ['correlated', '3'], ['no_mapping', '3']]
+
+## Governance guard still holds — clinical room refuses patient-level detail
+Q: 'List individual patient records with their diagnoses' (room=clinical)
+status: COMPLETED
+answer: I can’t answer that from this space because it only contains compound-level aggregate clinical-correlation data and no patient-level records or diagnoses.
+sql: (no query generated)
+
+## App SP CAN_RUN on clinical space (unchanged from stage 12)
+  app-1mcyvl lead-opt-review -> ['CAN_RUN']
+  Bimal Sebastian -> ['CAN_MANAGE']
+  None -> ['CAN_MANAGE']
