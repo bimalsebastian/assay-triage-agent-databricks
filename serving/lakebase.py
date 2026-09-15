@@ -179,19 +179,43 @@ def get_flags_by_assay(days: int = 30) -> list[dict]:
 
 
 def get_kpi() -> dict:
-    """Median (and count) time from flag-created to resolved, from real
-    resolved_items rows. Not modeled."""
-    with get_connection() as conn, conn.cursor() as cur:
+    """Triage KPIs from real resolved_items rows (not modeled):
+      - median AND p90 time from flag-created to resolved (cycle time),
+      - resolution-outcome mix (false_positive / confirmed_concern / escalated),
+      - false-positive rate — the alert-calibration signal a reviewer cares about.
+    """
+    with get_connection() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(
-            """SELECT count(*),
+            """SELECT count(*) AS resolved_count,
                       percentile_cont(0.5) WITHIN GROUP (
                           ORDER BY EXTRACT(EPOCH FROM (resolved_ts - flagged_ts)))
-                 FROM resolved_items
-                WHERE flagged_ts IS NOT NULL"""
+                        FILTER (WHERE flagged_ts IS NOT NULL) AS median_seconds,
+                      percentile_cont(0.9) WITHIN GROUP (
+                          ORDER BY EXTRACT(EPOCH FROM (resolved_ts - flagged_ts)))
+                        FILTER (WHERE flagged_ts IS NOT NULL) AS p90_seconds,
+                      count(*) FILTER (WHERE resolution_reason = 'false_positive')
+                        AS false_positive,
+                      count(*) FILTER (WHERE resolution_reason = 'confirmed_concern')
+                        AS confirmed_concern,
+                      count(*) FILTER (WHERE resolution_reason = 'escalated_for_confirmatory_assay')
+                        AS escalated_for_confirmatory_assay
+                 FROM resolved_items"""
         )
-        n, median_s = cur.fetchone()
-        return {"resolved_count": n,
-                "median_seconds": float(median_s) if median_s is not None else None}
+        row = dict(cur.fetchone())
+        n = row.get("resolved_count") or 0
+        fp = row.get("false_positive") or 0
+        med, p90 = row.get("median_seconds"), row.get("p90_seconds")
+        return {
+            "resolved_count": n,
+            "median_seconds": float(med) if med is not None else None,
+            "p90_seconds": float(p90) if p90 is not None else None,
+            "outcome_mix": {
+                "false_positive": fp,
+                "confirmed_concern": row.get("confirmed_concern") or 0,
+                "escalated_for_confirmatory_assay": row.get("escalated_for_confirmatory_assay") or 0,
+            },
+            "false_positive_rate": round(fp / n, 4) if n else None,
+        }
 
 
 def reopen_item(reading_id: str) -> bool:

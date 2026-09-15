@@ -142,8 +142,9 @@ def flags_by_assay(days: int = 30):
 def kpi():
     try:
         k = lakebase.get_kpi()
-        med = k["median_seconds"]
-        k["median_hours"] = round(med / 3600, 2) if med is not None else None
+        for hkey, skey in (("median_hours", "median_seconds"), ("p90_hours", "p90_seconds")):
+            s = k.get(skey)
+            k[hkey] = round(s / 3600, 2) if s is not None else None
         return k
     except Exception as e:  # noqa: BLE001
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
@@ -263,9 +264,13 @@ INDEX_HTML = """<!doctype html>
 <main>
  <div class="grid">
   <div class="card">
-   <h2>Median flag &rarr; resolve</h2>
-   <div class="kpi" id="kpi">—</div>
-   <div class="muted" id="kpiNote"></div>
+   <h2>Triage KPIs <span class="muted" id="kpiNote"></span></h2>
+   <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end">
+    <div><div class="kpi" id="kpiMedian">—</div><div class="muted">median flag&rarr;resolve</div></div>
+    <div><div class="kpi" id="kpiP90">—</div><div class="muted">p90 flag&rarr;resolve</div></div>
+    <div><div class="kpi" id="kpiFp">—</div><div class="muted">false-positive rate</div></div>
+   </div>
+   <div id="mix" style="margin-top:12px"></div>
   </div>
   <div class="card">
    <h2>Open flags by assay <span class="muted" id="fbaDays"></span></h2>
@@ -301,8 +306,22 @@ function ccBadge(state){
 async function whoami(){const d=await(await fetch('/api/whoami')).json();document.getElementById('user').textContent=d.user;}
 async function loadKpi(){
  const d=await(await fetch('/api/kpi')).json();
- document.getElementById('kpi').textContent=(d.median_hours!=null)?(d.median_hours+' h'):'—';
+ document.getElementById('kpiMedian').textContent=(d.median_hours!=null)?(d.median_hours+' h'):'—';
+ document.getElementById('kpiP90').textContent=(d.p90_hours!=null)?(d.p90_hours+' h'):'—';
+ document.getElementById('kpiFp').textContent=(d.false_positive_rate!=null)?(Math.round(d.false_positive_rate*100)+'%'):'—';
  document.getElementById('kpiNote').textContent=(d.resolved_count?('from '+d.resolved_count+' real resolution'+(d.resolved_count==1?'':'s')):'no resolutions logged yet');
+ const mix=d.outcome_mix||{};
+ const seg=[['false_positive','False positive','#b3261e'],['confirmed_concern','Confirmed concern','#b26a00'],['escalated_for_confirmatory_assay','Escalated','#0b3d2e']];
+ const total=seg.reduce((s,x)=>s+(mix[x[0]]||0),0);
+ const box=document.getElementById('mix');
+ if(!total){box.innerHTML='<span class="muted">Resolution-outcome mix appears once flags are resolved.</span>';return;}
+ let bar='<div style="display:flex;height:16px;border-radius:4px;overflow:hidden;max-width:440px">';
+ seg.forEach(s=>{const v=mix[s[0]]||0;if(v)bar+=`<div title="${s[1]}: ${v}" style="width:${100*v/total}%;background:${s[2]}"></div>`;});
+ bar+='</div>';
+ let leg='<div class="muted" style="margin-top:6px">';
+ seg.forEach(s=>{const v=mix[s[0]]||0;leg+=`<span style="margin-right:14px"><span style="display:inline-block;width:9px;height:9px;background:${s[2]};border-radius:2px;margin-right:4px"></span>${s[1]} ${v}</span>`;});
+ leg+='</div>';
+ box.innerHTML='<div class="muted" style="margin-bottom:4px">Resolution-outcome mix (real reviewer decisions)</div>'+bar+leg;
 }
 async function loadFba(){
  const d=await(await fetch('/api/flags-by-assay')).json();
