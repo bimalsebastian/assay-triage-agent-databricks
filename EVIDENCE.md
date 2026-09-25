@@ -8,8 +8,9 @@
 > **This is readable execution output, not a description of it.** Every block below
 > is real output captured from the live Azure Databricks workspace
 > `adb-7405610110498224.4.azuredatabricks.net` during the build, with the source
-> file and timestamp named. The raw captures live in [`evidence/`](evidence/) (21
-> files, `stageNN-*.txt`); the most load-bearing ones are inlined here so the
+> file and timestamp named. The raw captures live in [`evidence/`](evidence/) (23
+> files, `stageNN-*.txt`, incl. deployed-app serving logs and a full Genie response);
+> the most load-bearing ones are inlined here so the
 > build's runtime behaviour can be confirmed directly, without opening the app or
 > running anything.
 
@@ -254,3 +255,23 @@ CMPD00003 | 1     | no_mapping             | ACTION: escalate for confirmatory a
 Auditability, per row: the exact grounded input prompt, the `model_endpoint`, and the
 `generated_ts` are all persisted in the table — so a reviewer or auditor can see
 precisely what facts produced each recommendation.
+
+---
+
+## 8. The deployed app serving real data, and a full Genie response
+*Sources: `evidence/stage19-app-serving-logs.txt`, `evidence/stage20-genie-one-response.txt`*
+
+**The deployed Databricks App returning real data** — captured request logs from the
+running app (`lead-opt-review`), **121 `200 OK` responses** across its live endpoints:
+```
+GET /api/queue/rollup   -> 200 OK   (x15)   the blended-risk review queue
+GET /api/kpi            -> 200 OK   (x16)   the triage KPI panel
+GET /api/flags-by-assay -> 200 OK   (x16)   open flags per assay
+GET /api/ask/poll       -> 200 OK   (x46)   Genie One async polling
+GET /api/whoami         -> 200 OK   (x10)   the signed-in (OBU) identity
+```
+This is a text-readable trace of the app actually serving the build's data.
+
+**A full live Genie One response** (`evidence/stage20-genie-one-response.txt`) — the
+complete "which compounds are flagged and why" answer: the 14-row flagged table with
+every reason, the key observations, and the Genie query-result deep links.

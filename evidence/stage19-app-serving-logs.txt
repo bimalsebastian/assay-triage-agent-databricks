@@ -1,0 +1,1124 @@
+Sep 25, 2026, 03:20:43 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.46:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:20:40 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.46:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:20:40 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.46:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:19:57 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.113:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:19:55 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.113:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:19:55 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.113:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:19:13 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.113:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:19:10 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.113:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:19:10 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.113:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:18:28 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.186:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:18:26 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.186:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:18:25 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.72.186:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:43 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:40 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:39 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:36 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:32 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:25 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:18 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:11 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:17:05 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:58 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:58 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:55 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:55 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:51 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:44 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:37 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=52b872e213144ea58802f7a83790aec2&response_id=fdb33796f2434dceb1b0b14ceacb7afa HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:31 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:13 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:11 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:10 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:08 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 03:16:08 PM GMT+1
+APP
+01f1b8cc…
+INFO: 10.112.74.186:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 11:32:14 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Deployment 01f1b8cc5b281a6fa543b31d5b4cb3e9 ended in 3.758753887s
+Sep 25, 2026, 11:32:14 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Deployment successful
+Sep 25, 2026, 11:32:13 AM GMT+1
+APP
+01f1b8cc…
+INFO: Started server process [294]
+Sep 25, 2026, 11:32:13 AM GMT+1
+APP
+01f1b8cc…
+INFO: Waiting for application startup.
+Sep 25, 2026, 11:32:13 AM GMT+1
+APP
+01f1b8cc…
+INFO: Application startup complete.
+Sep 25, 2026, 11:32:13 AM GMT+1
+APP
+01f1b8cc…
+INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Sep 25, 2026, 11:32:12 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Updated file: python/source_code/lakebase.py
+Sep 25, 2026, 11:32:12 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Requirements have not changed. Skipping installation.
+Sep 25, 2026, 11:32:12 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Starting app with command: [uvicorn app:app --host 0.0.0.0 --port 8000]
+Sep 25, 2026, 11:32:11 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Updated file: python/source_code/genie_mcp.py
+Sep 25, 2026, 11:32:11 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Updated file: python/source_code/requirements.txt
+Sep 25, 2026, 11:32:11 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Updated file: python/source_code/app.yaml
+Sep 25, 2026, 11:32:11 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Updated file: python/source_code/app.py
+Sep 25, 2026, 11:32:10 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Starting deployment 01f1b8cc5b281a6fa543b31d5b4cb3e9...
+Sep 25, 2026, 11:32:10 AM GMT+1
+APP
+01f1b8c8…
+INFO: Shutting down
+Sep 25, 2026, 11:32:10 AM GMT+1
+APP
+01f1b8c8…
+INFO: Waiting for application shutdown.
+Sep 25, 2026, 11:32:10 AM GMT+1
+APP
+01f1b8c8…
+INFO: Application shutdown complete.
+Sep 25, 2026, 11:32:10 AM GMT+1
+APP
+01f1b8c8…
+INFO: Finished server process [252]
+Sep 25, 2026, 11:32:10 AM GMT+1
+BUILD
+01f1b8cc…
+[INFO] Downloading source code from /Workspace/Users/eed3b02d-5fda-409a-96e9-240e2a11e377/src/01f1b8cc5b281a6fa543b31d5b4cb3e9
+Sep 25, 2026, 11:21:54 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:48 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:42 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:36 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:30 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:24 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:18 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:12 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:06 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:21:00 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:53 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:47 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:41 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:35 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:29 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/ask/poll?conversation_id=422c2cbc13744c3eaf89c67665f2f966&response_id=32ba7a7c8b9941d9b988c7eecfec7f7a HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:23 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:11 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:09 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:09 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:08 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 11:20:08 AM GMT+1
+APP
+01f1b8c8…
+INFO: 10.112.74.186:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 11:04:16 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Deployment 01f1b8c873931e6c9243a7a6b3297975 ended in 3.452533334s
+Sep 25, 2026, 11:04:16 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Deployment successful
+Sep 25, 2026, 11:04:15 AM GMT+1
+APP
+01f1b8c8…
+INFO: Started server process [252]
+Sep 25, 2026, 11:04:15 AM GMT+1
+APP
+01f1b8c8…
+INFO: Waiting for application startup.
+Sep 25, 2026, 11:04:15 AM GMT+1
+APP
+01f1b8c8…
+INFO: Application startup complete.
+Sep 25, 2026, 11:04:15 AM GMT+1
+APP
+01f1b8c8…
+INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Updated file: python/source_code/app.py
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Updated file: python/source_code/lakebase.py
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Updated file: python/source_code/genie_mcp.py
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Updated file: python/source_code/app.yaml
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Updated file: python/source_code/requirements.txt
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Requirements have not changed. Skipping installation.
+Sep 25, 2026, 11:04:14 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Starting app with command: [uvicorn app:app --host 0.0.0.0 --port 8000]
+Sep 25, 2026, 11:04:13 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Starting deployment 01f1b8c873931e6c9243a7a6b3297975...
+Sep 25, 2026, 11:04:13 AM GMT+1
+APP
+01f1b8c5…
+INFO: Shutting down
+Sep 25, 2026, 11:04:13 AM GMT+1
+APP
+01f1b8c5…
+INFO: Waiting for application shutdown.
+Sep 25, 2026, 11:04:13 AM GMT+1
+APP
+01f1b8c5…
+INFO: Application shutdown complete.
+Sep 25, 2026, 11:04:13 AM GMT+1
+APP
+01f1b8c5…
+INFO: Finished server process [215]
+Sep 25, 2026, 11:04:13 AM GMT+1
+BUILD
+01f1b8c8…
+[INFO] Downloading source code from /Workspace/Users/eed3b02d-5fda-409a-96e9-240e2a11e377/src/01f1b8c873931e6c9243a7a6b3297975
+Sep 25, 2026, 10:59:54 AM GMT+1
+APP
+01f1b8c5…
+INFO: 10.112.74.46:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 10:59:46 AM GMT+1
+APP
+01f1b8c5…
+INFO: 10.112.74.46:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 10:59:44 AM GMT+1
+APP
+01f1b8c5…
+INFO: 10.112.74.46:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:59:44 AM GMT+1
+APP
+01f1b8c5…
+INFO: 10.112.74.46:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:59:43 AM GMT+1
+APP
+01f1b8c5…
+INFO: 10.112.74.46:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:59:43 AM GMT+1
+APP
+01f1b8c5…
+INFO: 10.112.74.46:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:45:37 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Deployment 01f1b8c5d7f21bc3a0aa9124dbdeacce ended in 3.867680145s
+Sep 25, 2026, 10:45:37 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Deployment successful
+Sep 25, 2026, 10:45:36 AM GMT+1
+APP
+01f1b8c5…
+INFO: Started server process [215]
+Sep 25, 2026, 10:45:36 AM GMT+1
+APP
+01f1b8c5…
+INFO: Waiting for application startup.
+Sep 25, 2026, 10:45:36 AM GMT+1
+APP
+01f1b8c5…
+INFO: Application startup complete.
+Sep 25, 2026, 10:45:36 AM GMT+1
+APP
+01f1b8c5…
+INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Sep 25, 2026, 10:45:35 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Updated file: python/source_code/lakebase.py
+Sep 25, 2026, 10:45:35 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Updated file: python/source_code/genie_mcp.py
+Sep 25, 2026, 10:45:35 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Updated file: python/source_code/app.yaml
+Sep 25, 2026, 10:45:35 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Updated file: python/source_code/requirements.txt
+Sep 25, 2026, 10:45:35 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Requirements have not changed. Skipping installation.
+Sep 25, 2026, 10:45:35 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Starting app with command: [uvicorn app:app --host 0.0.0.0 --port 8000]
+Sep 25, 2026, 10:45:34 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Updated file: python/source_code/app.py
+Sep 25, 2026, 10:45:33 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Starting deployment 01f1b8c5d7f21bc3a0aa9124dbdeacce...
+Sep 25, 2026, 10:45:33 AM GMT+1
+APP
+01f1b8c3…
+INFO: Shutting down
+Sep 25, 2026, 10:45:33 AM GMT+1
+APP
+01f1b8c3…
+INFO: Waiting for application shutdown. INFO: Application shutdown complete. INFO: Finished server process [169]
+Sep 25, 2026, 10:45:33 AM GMT+1
+BUILD
+01f1b8c5…
+[INFO] Downloading source code from /Workspace/Users/eed3b02d-5fda-409a-96e9-240e2a11e377/src/01f1b8c5d7f21bc3a0aa9124dbdeacce
+Sep 25, 2026, 10:33:11 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 10:33:10 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:33:10 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:33:10 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:33:09 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:50 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:47 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:41 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:35 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:29 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:23 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:17 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:11 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.46:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:10 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:32:04 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:58 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:52 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/ask/poll?conversation_id=f529f87809714776848bb5bc9f1d5a21&response_id=32f7e76e9b6d4dc38ec51e8b769ce954 HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:46 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:39 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:38 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:37 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:37 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:31:37 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.186:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:30:39 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.131:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 10:30:38 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.131:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:30:38 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.131:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:30:37 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.131:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:30:37 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.74.131:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:28:31 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:28:31 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:28:30 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:28:30 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:27:01 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 10:26:53 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 10:26:52 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:26:52 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:26:51 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:26:51 AM GMT+1
+APP
+01f1b8c3…
+INFO: 10.112.72.130:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:26:24 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Deployment 01f1b8c3283e1967b9918e381782ca1e ended in 3.754249896s
+Sep 25, 2026, 10:26:24 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Deployment successful
+Sep 25, 2026, 10:26:23 AM GMT+1
+APP
+01f1b8c3…
+INFO: Started server process [169]
+Sep 25, 2026, 10:26:23 AM GMT+1
+APP
+01f1b8c3…
+INFO: Waiting for application startup.
+Sep 25, 2026, 10:26:23 AM GMT+1
+APP
+01f1b8c3…
+INFO: Application startup complete.
+Sep 25, 2026, 10:26:23 AM GMT+1
+APP
+01f1b8c3…
+INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Sep 25, 2026, 10:26:22 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Updated file: python/source_code/requirements.txt
+Sep 25, 2026, 10:26:22 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Requirements have not changed. Skipping installation.
+Sep 25, 2026, 10:26:22 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Starting app with command: [uvicorn app:app --host 0.0.0.0 --port 8000]
+Sep 25, 2026, 10:26:21 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Updated file: python/source_code/app.py
+Sep 25, 2026, 10:26:21 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Updated file: python/source_code/lakebase.py
+Sep 25, 2026, 10:26:21 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Updated file: python/source_code/genie_mcp.py
+Sep 25, 2026, 10:26:21 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Updated file: python/source_code/app.yaml
+Sep 25, 2026, 10:26:20 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Starting deployment 01f1b8c3283e1967b9918e381782ca1e...
+Sep 25, 2026, 10:26:20 AM GMT+1
+APP
+01f1b8bf…
+INFO: Shutting down
+Sep 25, 2026, 10:26:20 AM GMT+1
+APP
+01f1b8bf…
+INFO: Waiting for application shutdown.
+Sep 25, 2026, 10:26:20 AM GMT+1
+APP
+01f1b8bf…
+INFO: Application shutdown complete.
+Sep 25, 2026, 10:26:20 AM GMT+1
+APP
+01f1b8bf…
+INFO: Finished server process [132]
+Sep 25, 2026, 10:26:20 AM GMT+1
+BUILD
+01f1b8c3…
+[INFO] Downloading source code from /Workspace/Users/eed3b02d-5fda-409a-96e9-240e2a11e377/src/01f1b8c3283e1967b9918e381782ca1e
+Sep 25, 2026, 10:01:59 AM GMT+1
+APP
+01f1b8bf…
+INFO: 10.112.72.113:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 10:01:44 AM GMT+1
+APP
+01f1b8bf…
+INFO: 10.112.72.113:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 10:01:42 AM GMT+1
+APP
+01f1b8bf…
+INFO: 10.112.72.113:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 10:01:42 AM GMT+1
+APP
+01f1b8bf…
+INFO: 10.112.72.113:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 10:01:41 AM GMT+1
+APP
+01f1b8bf…
+INFO: 10.112.72.113:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 10:01:41 AM GMT+1
+APP
+01f1b8bf…
+INFO: 10.112.72.113:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 10:00:29 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Deployment 01f1b8bf89901bafaf3343752ac209f3 ended in 4.134051348s
+Sep 25, 2026, 10:00:29 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Deployment successful
+Sep 25, 2026, 10:00:28 AM GMT+1
+APP
+01f1b8bf…
+INFO: Started server process [132]
+Sep 25, 2026, 10:00:28 AM GMT+1
+APP
+01f1b8bf…
+INFO: Waiting for application startup.
+Sep 25, 2026, 10:00:28 AM GMT+1
+APP
+01f1b8bf…
+INFO: Application startup complete.
+Sep 25, 2026, 10:00:28 AM GMT+1
+APP
+01f1b8bf…
+INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Sep 25, 2026, 10:00:27 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Updated file: python/source_code/lakebase.py
+Sep 25, 2026, 10:00:27 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Updated file: python/source_code/requirements.txt
+Sep 25, 2026, 10:00:27 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Updated file: python/source_code/app.yaml
+Sep 25, 2026, 10:00:27 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Requirements have not changed. Skipping installation.
+Sep 25, 2026, 10:00:27 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Starting app with command: [uvicorn app:app --host 0.0.0.0 --port 8000]
+Sep 25, 2026, 10:00:26 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Updated file: python/source_code/genie_mcp.py
+Sep 25, 2026, 10:00:26 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Updated file: python/source_code/app.py
+Sep 25, 2026, 10:00:25 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Starting deployment 01f1b8bf89901bafaf3343752ac209f3...
+Sep 25, 2026, 10:00:25 AM GMT+1
+APP
+01f1b0d8…
+INFO: Shutting down
+Sep 25, 2026, 10:00:25 AM GMT+1
+APP
+01f1b0d8…
+INFO: Waiting for application shutdown.
+Sep 25, 2026, 10:00:25 AM GMT+1
+APP
+01f1b0d8…
+INFO: Application shutdown complete.
+Sep 25, 2026, 10:00:25 AM GMT+1
+APP
+01f1b0d8…
+INFO: Finished server process [65]
+Sep 25, 2026, 10:00:25 AM GMT+1
+BUILD
+01f1b8bf…
+[INFO] Downloading source code from /Workspace/Users/eed3b02d-5fda-409a-96e9-240e2a11e377/src/01f1b8bf89901bafaf3343752ac209f3
+Sep 25, 2026, 09:33:28 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:33:24 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:33:17 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:33:10 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:33:03 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:32:54 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:32:46 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:32:39 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:32:32 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:32:24 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/ask/poll?conversation_id=4194d2e9f85042d585a432ea8a59bb4f&response_id=e283760adcec48799d117664f78c4ba1 HTTP/1.1" 200 OK
+Sep 25, 2026, 09:32:17 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "POST /api/ask HTTP/1.1" 200 OK
+Sep 25, 2026, 09:27:01 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/queue/rollup HTTP/1.1" 200 OK
+Sep 25, 2026, 09:26:59 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/flags-by-assay HTTP/1.1" 200 OK
+Sep 25, 2026, 09:26:59 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/kpi HTTP/1.1" 200 OK
+Sep 25, 2026, 09:26:57 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET / HTTP/1.1" 200 OK
+Sep 25, 2026, 09:26:57 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /api/whoami HTTP/1.1" 200 OK
+Sep 25, 2026, 09:26:57 AM GMT+1
+APP
+01f1b0d8…
+INFO: 10.112.74.46:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+Sep 21, 2026, 01:07:45 AM GMT+1
+APP
+01f1b0d8…
+INFO: Started server process [65]
+Sep 21, 2026, 01:07:45 AM GMT+1
+APP
+01f1b0d8…
+INFO: Waiting for application startup.
+Sep 21, 2026, 01:07:45 AM GMT+1
+APP
+01f1b0d8…
+INFO: Application startup complete.
+Sep 21, 2026, 01:07:45 AM GMT+1
+APP
+01f1b0d8…
+INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Sep 21, 2026, 01:07:45 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Deployment 01f1b0d8b6fc1ebe81102e53cfd7a286 ended in 14.708034752s
+Sep 21, 2026, 01:07:45 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Deployment successful
+Sep 21, 2026, 01:07:43 AM GMT+1
+BUILD
+01f1b0d8…
+Successfully installed fastapi-0.115.14 psycopg2-binary-2.9.13 starlette-0.46.2 uvicorn-0.34.0
+Sep 21, 2026, 01:07:43 AM GMT+1
+BUILD
+01f1b0d8…
+[notice] A new release of pip is available: 24.0 -> 26.2.1 [notice] To update, run: python3_apps -m pip install --upgrade pip
+Sep 21, 2026, 01:07:43 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Requirements installed successfully.
+Sep 21, 2026, 01:07:43 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Starting app with command: [uvicorn app:app --host 0.0.0.0 --port 8000]
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Attempting uninstall: starlette
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Found existing installation: starlette 0.38.6
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Uninstalling starlette-0.38.6:
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Successfully uninstalled starlette-0.38.6
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Attempting uninstall: fastapi
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Found existing installation: fastapi 0.115.0
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Uninstalling fastapi-0.115.0:
+Sep 21, 2026, 01:07:42 AM GMT+1
+BUILD
+01f1b0d8…
+Successfully uninstalled fastapi-0.115.0
+Sep 21, 2026, 01:07:41 AM GMT+1
+BUILD
+01f1b0d8…
+Installing collected packages: uvicorn, psycopg2-binary, starlette, fastapi
+Sep 21, 2026, 01:07:41 AM GMT+1
+BUILD
+01f1b0d8…
+Attempting uninstall: uvicorn
+Sep 21, 2026, 01:07:41 AM GMT+1
+BUILD
+01f1b0d8…
+Found existing installation: uvicorn 0.30.6
+Sep 21, 2026, 01:07:41 AM GMT+1
+BUILD
+01f1b0d8…
+Uninstalling uvicorn-0.30.6:
+Sep 21, 2026, 01:07:41 AM GMT+1
+BUILD
+01f1b0d8…
+Successfully uninstalled uvicorn-0.30.6
+Sep 21, 2026, 01:07:40 AM GMT+1
+BUILD
+01f1b0d8…
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 11.6 MB/s eta 0:00:00
+Sep 21, 2026, 01:07:40 AM GMT+1
+BUILD
+01f1b0d8…
+—
+Sep 21, 2026, 01:07:40 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading starlette-0.46.2-py3-none-any.whl (72 kB)
+Sep 21, 2026, 01:07:40 AM GMT+1
+BUILD
+01f1b0d8…
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.0/72.0 kB 223.5 kB/s eta 0:00:00
+Sep 21, 2026, 01:07:40 AM GMT+1
+BUILD
+01f1b0d8…
+—
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 in ./.venv/lib/python3.11/site-packages (from fastapi==0.115.14->-r requirements.txt (line 1)) (2.13.4)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: typing-extensions>=4.8.0 in ./.venv/lib/python3.11/site-packages (from fastapi==0.115.14->-r requirements.txt (line 1)) (4.15.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: click>=7.0 in ./.venv/lib/python3.11/site-packages (from uvicorn==0.34.0->uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (8.4.1)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: h11>=0.8 in ./.venv/lib/python3.11/site-packages (from uvicorn==0.34.0->uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (0.16.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: httptools>=0.6.3 in ./.venv/lib/python3.11/site-packages (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (0.8.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: python-dotenv>=0.13 in ./.venv/lib/python3.11/site-packages (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (1.2.2)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: pyyaml>=5.1 in ./.venv/lib/python3.11/site-packages (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (6.0.3)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: uvloop!=0.15.0,!=0.15.1,>=0.14.0 in ./.venv/lib/python3.11/site-packages (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (0.22.1)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: watchfiles>=0.13 in ./.venv/lib/python3.11/site-packages (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (1.2.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: websockets>=10.4 in ./.venv/lib/python3.11/site-packages (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2)) (12.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: annotated-types>=0.6.0 in ./.venv/lib/python3.11/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.115.14->-r requirements.txt (line 1)) (0.7.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: pydantic-core==2.46.4 in ./.venv/lib/python3.11/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.115.14->-r requirements.txt (line 1)) (2.46.4)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: typing-inspection>=0.4.2 in ./.venv/lib/python3.11/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.115.14->-r requirements.txt (line 1)) (0.4.2)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: anyio<5,>=3.6.2 in ./.venv/lib/python3.11/site-packages (from starlette<0.47.0,>=0.40.0->fastapi==0.115.14->-r requirements.txt (line 1)) (4.13.0)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Requirement already satisfied: idna>=2.8 in ./.venv/lib/python3.11/site-packages (from anyio<5,>=3.6.2->starlette<0.47.0,>=0.40.0->fastapi==0.115.14->-r requirements.txt (line 1)) (3.17)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading fastapi-0.115.14-py3-none-any.whl (95 kB)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 95.5/95.5 kB 419.1 kB/s eta 0:00:00
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+—
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading uvicorn-0.34.0-py3-none-any.whl (62 kB)
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.3/62.3 kB 171.8 kB/s eta 0:00:00
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+—
+Sep 21, 2026, 01:07:39 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading psycopg2_binary-2.9.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+Sep 21, 2026, 01:07:38 AM GMT+1
+BUILD
+01f1b0d8…
+Collecting uvicorn==0.34.0 (from uvicorn[standard]==0.34.0->-r requirements.txt (line 2))
+Sep 21, 2026, 01:07:38 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading uvicorn-0.34.0-py3-none-any.whl.metadata (6.5 kB)
+Sep 21, 2026, 01:07:38 AM GMT+1
+BUILD
+01f1b0d8…
+Collecting psycopg2-binary==2.9.13 (from -r requirements.txt (line 3))
+Sep 21, 2026, 01:07:38 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading psycopg2_binary-2.9.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Sep 21, 2026, 01:07:38 AM GMT+1
+BUILD
+01f1b0d8…
+Collecting starlette<0.47.0,>=0.40.0 (from fastapi==0.115.14->-r requirements.txt (line 1))
+Sep 21, 2026, 01:07:38 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading starlette-0.46.2-py3-none-any.whl.metadata (6.2 kB)
+Sep 21, 2026, 01:07:35 AM GMT+1
+BUILD
+01f1b0d8…
+Collecting fastapi==0.115.14 (from -r requirements.txt (line 1))
+Sep 21, 2026, 01:07:35 AM GMT+1
+BUILD
+01f1b0d8…
+Downloading fastapi-0.115.14-py3-none-any.whl.metadata (27 kB)
+Sep 21, 2026, 01:07:32 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Updated file: python/source_code/genie_mcp.py
+Sep 21, 2026, 01:07:32 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Updated file: python/source_code/lakebase.py
+Sep 21, 2026, 01:07:32 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Updated file: python/source_code/app.py
+Sep 21, 2026, 01:07:32 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Updated file: python/source_code/app.yaml
+Sep 21, 2026, 01:07:32 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Updated file: python/source_code/requirements.txt
+Sep 21, 2026, 01:07:31 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Starting deployment 01f1b0d8b6fc1ebe81102e53cfd7a286...
+Sep 21, 2026, 01:07:31 AM GMT+1
+BUILD
+01f1b0d8…
+[INFO] Downloading source code from /Workspace/Users/eed3b02d-5fda-409a-96e9-240e2a11e377/src/01f1b0d8b6fc1ebe81102e53cfd7a286
+Sep 21, 2026, 01:07:26 AM GMT+1
+SYSTEM
+—
+[INFO] Starting Databricks Apps runtime...

@@ -1,0 +1,29 @@
+## Flagged Compounds
+
+There are **14 flagged readings** across **7 distinct compounds** in the lead-optimization assay dataset. A compound is flagged when an assay reading breaches a synthetic toxicity/ADMET concern threshold. [Lead-Opt Assay Triage](https://adb-7405610110498224.4.azuredatabricks.net/genie/rooms/01f1b03319ec17daa40d884a21f77386?isDbOne=true&utm_source=one-chat&o=7405610110498224)
+
+| compound_id | assay_name  | result_value | threshold | reason                                                                                                                                                        |
+| ----------- | ----------- | ------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CMPD00014   | KINETIC_SOL | 4.51         | 10.0      | FLAGGED: KINETIC_SOL reading 4.51 uM breaches synthetic low-concern threshold 10.0 uM (margin -5.49). Compound prior mean 7.763 over 2 historical readings.   |
+| CMPD00012   | hERG_IC50   | 0.259        | 1.0       | FLAGGED: hERG_IC50 reading 0.259 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.741). Compound prior mean 0.264 over 2 historical readings.    |
+| CMPD00012   | hERG_IC50   | 0.269        | 1.0       | FLAGGED: hERG_IC50 reading 0.269 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.731). Compound prior mean 0.264 over 2 historical readings.    |
+| CMPD00012   | CYP3A4_IC50 | 0.421        | 1.0       | FLAGGED: CYP3A4_IC50 reading 0.421 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.579). Compound prior mean 1.7405 over 2 historical readings. |
+| CMPD00004   | CYP3A4_IC50 | 0.709        | 1.0       | FLAGGED: CYP3A4_IC50 reading 0.709 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.291). Compound prior mean 1.171 over 2 historical readings.  |
+| CMPD00004   | hERG_IC50   | 0.717        | 1.0       | FLAGGED: hERG_IC50 reading 0.717 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.283). Compound prior mean 1.181 over 2 historical readings.    |
+| CMPD00024   | hERG_IC50   | 0.795        | 1.0       | FLAGGED: hERG_IC50 reading 0.795 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.205). Compound prior mean 0.8915 over 2 historical readings.   |
+| CMPD00007   | CYP3A4_IC50 | 0.796        | 1.0       | FLAGGED: CYP3A4_IC50 reading 0.796 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.204). Compound prior mean 9.397 over 2 historical readings.  |
+| CMPD00008   | hERG_IC50   | 0.844        | 1.0       | FLAGGED: hERG_IC50 reading 0.844 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.156). Compound prior mean 1.1455 over 2 historical readings.   |
+| CMPD00006   | hERG_IC50   | 0.846        | 1.0       | FLAGGED: hERG_IC50 reading 0.846 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.154). Compound prior mean 8.8585 over 2 historical readings.   |
+| CMPD00024   | hERG_IC50   | 0.988        | 1.0       | FLAGGED: hERG_IC50 reading 0.988 uM breaches synthetic low-concern threshold 1.0 uM (margin -0.012). Compound prior mean 0.8915 over 2 historical readings.   |
+| CMPD00003   | LOGD_7_4    | 5.332        | 5.0       | FLAGGED: LOGD_7_4 reading 5.332  breaches synthetic high-concern threshold 5.0  (margin 0.332). Compound prior mean 4.9575 over 2 historical readings.        |
+| CMPD00004   | LOGD_7_4    | 5.348        | 5.0       | FLAGGED: LOGD_7_4 reading 5.348  breaches synthetic high-concern threshold 5.0  (margin 0.348). Compound prior mean 4.587 over 2 historical readings.         |
+| CMPD00008   | LOGD_7_4    | 5.37         | 5.0       | FLAGGED: LOGD_7_4 reading 5.37  breaches synthetic high-concern threshold 5.0  (margin 0.37). Compound prior mean 3.582 over 2 historical readings.           |
+
+### Key Observations
+
+- **CMPD00012** has the most flags (3), triggered across **hERG_IC50** and **CYP3A4_IC50** assays — all readings fell well below the 1.0 µM low-concern threshold. [Query Result](https://adb-7405610110498224.4.azuredatabricks.net/one/chat/threads/52b872e213144ea58802f7a83790aec2?o=7405610110498224#embed-query_toa48g)
+- **CMPD00004** is also flagged on three assays (**CYP3A4_IC50**, **hERG_IC50**, and **LOGD_7.4**), making it a compound with broad tox/ADMET concerns. [Query Result](https://adb-7405610110498224.4.azuredatabricks.net/one/chat/threads/52b872e213144ea58802f7a83790aec2?o=7405610110498224#embed-query_toa48g)
+- **CMPD00014** has the worst margin (−5.49) on **KINETIC_SOL**, with a reading of 4.51 µM against a 10.0 µM threshold — the largest absolute breach in the dataset. [Query Result](https://adb-7405610110498224.4.azuredatabricks.net/one/chat/threads/52b872e213144ea58802f7a83790aec2?o=7405610110498224#embed-query_toa48g)
+- Three compounds (**CMPD00003**, **CMPD00004**, **CMPD00008**) are flagged on **LOGD_7.4** for exceeding the high-concern threshold of 5.0. [Query Result](https://adb-7405610110498224.4.azuredatabricks.net/one/chat/threads/52b872e213144ea58802f7a83790aec2?o=7405610110498224#embed-query_toa48g)
+
+Results are ordered by margin (ascending), so the most severe breaches appear first. All thresholds are synthetic demo data. [Lead-Opt Assay Triage](https://adb-7405610110498224.4.azuredatabricks.net/genie/rooms/01f1b03319ec17daa40d884a21f77386?isDbOne=true&utm_source=one-chat&o=7405610110498224)
