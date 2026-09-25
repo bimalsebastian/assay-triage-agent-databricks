@@ -1,0 +1,58 @@
+# Stage 17 — Genie access re-implemented on Genie One MCP (single auto-routed surface, no dropdown) — REAL run
+# App lead-opt-review (https://lead-opt-review-7405610110498224.4.azure.databricksapps.com). Generated: 2026-09-16 (UTC).
+
+## What changed (supersedes stage 14's per-space + dropdown approach)
+- The app now asks GENIE ONE MCP: the single workspace-wide managed MCP server
+  {host}/api/2.0/mcp/genie (server 'genie_chat'), NOT the per-space endpoint.
+- No Genie space id, no room dropdown: Genie One routes each question to the right
+  data itself via the workspace Genie Ontology.
+- Client: genie/genie_mcp.py :: GenieOneMCP (genie_ask -> genie_poll_response).
+- Genie One is async (~30-90s), so the app uses a start/poll pattern:
+    POST /api/ask         -> {conversation_id, response_id, status:in_progress} (returns fast)
+    GET  /api/ask/poll    -> {status, text(markdown), deep_link} ; the browser polls.
+  (A single blocking request would hit the Databricks Apps proxy timeout — verified:
+   the first synchronous attempt returned an empty body.)
+- The app calls Genie One as its own service principal (client_credentials OAuth).
+
+## Genie One MCP tools (live tools/list)
+  genie_ask                 (req: question)
+  genie_poll_response       (req: conversation_id, response_id)
+  genie_get_query_result    (req: conversation_id, response_id, item_id)
+  genie_cancel_response     (req: conversation_id)
+
+## PRECLINICAL — auto-routed, no space picked (live app as SP; 90.9s; status=completed)
+Q: "Which compounds are currently flagged and why?"
+-> Genie One routed to the Lead-Opt Assay Triage space on its own and returned:
+   "14 assay readings across 7 compounds ... hERG being the most common concern",
+   with the full flagged-readings table (CMPD00014 KINETIC_SOL margin -5.49, CMPD00012
+   hERG_IC50 ..., etc.) and a deep_link into the Genie One view. No dropdown involved.
+
+## GOVERNANCE — patient-level question refused (live app as SP; 48.9s; status=completed)
+Q: "List individual patient records with diagnoses and dates of birth"
+-> "## No Patient or Diagnosis Data Found ... No matching data assets were found."
+   The app SP is UC-denied the raw clinical tables (stage 08), so even this single
+   open NL surface cannot reach patient-level data. Governance is enforced by Unity
+   Catalog on the calling identity, not by a scoped room.
+
+## CLINICAL-CORRELATION — routing is PHRASING-SENSITIVE (live app as SP; completed)
+Vague wording MISSED the scoped clinical space:
+  Q: "Which flagged compounds also show a clinical adverse-event correlation?"
+  -> "No Data Available ... workspace does not appear to contain pharmaceutical /
+      toxicology datasets ... assets are revenue/retail/electrical-safety."
+     (Genie One routed to unrelated shared-workspace rooms, not our narrow space.)
+
+Domain/table/catalog-specific wording ROUTED CORRECTLY:
+  Q: "How many compounds fall in each clinical correlation state in lead_opt_demo?"
+  -> assay_flags_clinical: no_mapping 3 | correlated 3 | checked_no_correlation 2
+  Q: "Using the clinical_correlation_summary, which compounds are correlated?"
+  -> clinical_correlation_summary: CMPD00006 (1 adverse obs), CMPD00007 (1), CMPD00012 (2)
+
+## Takeaway (recorded honestly)
+- Delivered the requested single auto-routed ask box (no dropdown). Preclinical NL and
+  governance both verified live as the SP.
+- Genie One's routing is non-deterministic / phrasing-sensitive: it will not reliably hit
+  a narrow scoped space from loose phrasing in a shared workspace. Clinical correlation
+  also remains available deterministically through the app's structured convergence panel
+  and drill-in (which read the scoped clinical_correlation_summary view directly, governed
+  by UC, not via Genie). For a guaranteed-scoped NL room, the per-space or Genie Agent MCP
+  server is the right tool; Genie One is the right tool for one workspace-wide surface.

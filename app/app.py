@@ -8,10 +8,19 @@ flagged-compound queue (from Lakebase, stage 03), sees WHY each is flagged
 Auth: runs behind Databricks Apps workspace SSO. The signed-in user's identity
 arrives in the X-Forwarded-Email header and is recorded as the resolver.
 
-Data/AI access: authenticates to both Lakebase and the Genie Conversations API
-as the app's own service principal (client-credentials OAuth minted at runtime
-from the DATABRICKS_CLIENT_ID/SECRET the Apps runtime injects). Lakebase tokens
-expire ~1h, so a fresh token is minted per connection via a credential provider.
+Data/AI access is a HYBRID identity model:
+- Governed reads + Genie run ON BEHALF OF the signed-in USER. Databricks forwards
+  the user's OAuth token (scopes `sql`, `genie`) as the X-Forwarded-Access-Token
+  header on every request; the app uses it as the bearer for warehouse queries and
+  the Genie One MCP. Unity Catalog then enforces THAT user's grants — including
+  row filters and column masks — so clinical data is denied per the real person,
+  not uniformly per a shared identity.
+- Operational plumbing (the Lakebase review queue: reads, resolution writes) runs
+  as the app's own SERVICE PRINCIPAL (client-credentials OAuth minted at runtime
+  from the DATABRICKS_CLIENT_ID/SECRET the Apps runtime injects). The queue is
+  operational serving, not the governed system of record (Delta is), and the
+  background sync has no user in the loop — so an app identity is correct there.
+  Lakebase SP tokens expire ~1h, so a fresh one is minted per connection.
 """
 from __future__ import annotations
 
@@ -23,28 +32,16 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 import lakebase  # deployed alongside this file (copy of serving/lakebase.py)
-from genie_mcp import GenieMCP  # deployed alongside this file (copy of genie/genie_mcp.py)
+from genie_mcp import GenieOneMCP  # deployed alongside this file (copy of genie/genie_mcp.py)
 
 HOST = os.environ["DATABRICKS_HOST"].rstrip("/")
 if not HOST.startswith("http"):  # Apps set DATABRICKS_HOST without a scheme
     HOST = "https://" + HOST
 CLIENT_ID = os.environ["DATABRICKS_CLIENT_ID"]
 CLIENT_SECRET = os.environ["DATABRICKS_CLIENT_SECRET"]
-GENIE_SPACE_ID = os.environ["GENIE_SPACE_ID"]
-# Separate, scoped clinical room (stage 12). Optional so the app still boots if
-# the clinical extension isn't deployed; the clinical tab is hidden when unset.
-CLINICAL_GENIE_SPACE_ID = os.environ.get("CLINICAL_GENIE_SPACE_ID", "")
 LAKEBASE_HOST = os.environ["LAKEBASE_HOST"]
 PGDATABASE = os.environ.get("PGDATABASE", "lead_opt")
 WAREHOUSE_ID = os.environ["WAREHOUSE_ID"]
-
-# One Genie client (Databricks Managed MCP) addresses BOTH rooms by space id.
-# The named rooms below are all it will route to — the preclinical room and the
-# separate aggregate-only clinical room keep their distinct scopes/grants; this
-# is just a single transport in front of them.
-GENIE_ROOMS = {"preclinical": GENIE_SPACE_ID}
-if CLINICAL_GENIE_SPACE_ID:
-    GENIE_ROOMS["clinical"] = CLINICAL_GENIE_SPACE_ID
 
 app = FastAPI(title="Lead-Opt Assay Triage")
 
@@ -68,14 +65,15 @@ lakebase.set_credential_provider(lambda: {
 })
 
 
-def warehouse_query(sql: str) -> list[dict]:
-    """Run a read query against the SQL warehouse as the app SP (has SELECT on
-    silver + CAN_USE on the warehouse). Used for compound history from Delta."""
+def warehouse_query(sql: str, token: str) -> list[dict]:
+    """Run a read query against the SQL warehouse ON BEHALF OF the signed-in user
+    (their forwarded token). Unity Catalog enforces THAT user's grants + any row
+    filters / column masks on silver, so results are scoped to what they may see."""
     body = {"warehouse_id": WAREHOUSE_ID, "statement": sql,
             "wait_timeout": "30s", "on_wait_timeout": "CANCEL"}
     data = json.dumps(body).encode()
     req = urllib.request.Request(f"{HOST}/api/2.0/sql/statements", data=data, method="POST")
-    req.add_header("Authorization", f"Bearer {_oauth_token()}")
+    req.add_header("Authorization", f"Bearer {token}")
     req.add_header("Content-Type", "application/json")
     with urllib.request.urlopen(req) as r:
         resp = json.loads(r.read().decode())
@@ -84,20 +82,11 @@ def warehouse_query(sql: str) -> list[dict]:
     return [dict(zip(cols, row)) for row in rows]
 
 
-# Single unified Genie interface over Databricks Managed MCP. Authenticates as
-# the app SP (same OAuth token used for Lakebase and the warehouse); routes to
-# whichever room the caller names.
-_genie_client = GenieMCP(HOST, _oauth_token)
-
-
-def ask_genie(question: str, room: str = "preclinical") -> dict:
-    space_id = GENIE_ROOMS.get(room)
-    if not space_id:
-        return {"status": "ERROR", "text": f"unknown room '{room}'",
-                "sql": None, "rows": None, "room": room}
-    result = _genie_client.ask(space_id, question)
-    result["room"] = room
-    return result
+# Genie One managed MCP: ONE workspace-wide endpoint that routes each question to
+# the right data itself (no space selection). Called ON BEHALF OF the signed-in
+# user (their forwarded token), so Unity Catalog scopes the answer to what THAT
+# user may access — patient-level clinical data is denied per their own grants.
+# The client is created per-request (below) since the user token is per-request.
 
 
 def _user(request: Request) -> str:
@@ -105,6 +94,19 @@ def _user(request: Request) -> str:
             or request.headers.get("X-Forwarded-Preferred-Username")
             or request.headers.get("X-Forwarded-User")
             or "unknown-user")
+
+
+def _user_token(request: Request) -> str | None:
+    """The signed-in user's forwarded OAuth token (Databricks Apps user
+    authorization). Present when the app has `sql`/`genie` user_api_scopes and the
+    user has consented. None locally / if scopes aren't configured."""
+    return request.headers.get("X-Forwarded-Access-Token")
+
+
+def _genie_for(request: Request) -> GenieOneMCP:
+    """A Genie One MCP client bound to this request's user token (OBO)."""
+    tok = _user_token(request)
+    return GenieOneMCP(HOST, lambda: tok)
 
 
 @app.get("/api/whoami")
@@ -153,26 +155,33 @@ def kpi():
 
 
 @app.get("/api/clinical-summary")
-def clinical_summary(compound: str):
-    """Aggregate clinical-correlation summary for a compound, read from the
-    stage-12 SCOPED view (clinical_correlation_summary) — the same aggregate
-    surface the clinical Genie room uses. The app SP can read only this view,
-    not the clinical catalog tables (verified in stage 12), so this is not a
-    backdoor into clinical data."""
+def clinical_summary(request: Request, compound: str):
+    """Aggregate clinical-correlation summary for a compound, read ON BEHALF OF
+    the signed-in user from the stage-12 SCOPED view (clinical_correlation_summary)
+    — the same aggregate surface the clinical Genie room uses. Unity Catalog
+    enforces the user's own grants: a user without access to this view gets nothing
+    back, so clinical visibility is per-person, not a shared backdoor."""
+    tok = _user_token(request)
+    if not tok:
+        return JSONResponse({"error": "user_authorization_required"}, status_code=401)
     try:
         c = compound.replace("'", "")
         rows = warehouse_query(
             "SELECT compound_id, correlation_state, n_adverse_obs, signal_summary "
             "FROM lead_opt_demo.silver.clinical_correlation_summary "
-            f"WHERE compound_id = '{c}'")
+            f"WHERE compound_id = '{c}'", tok)
         return {"compound_id": compound, "summary": rows[0] if rows else None}
     except Exception as e:  # noqa: BLE001
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
 
 
 @app.get("/api/history")
-def history(compound: str, assay: str):
-    """Real historical readings for a compound+assay from silver.assay_results."""
+def history(request: Request, compound: str, assay: str):
+    """Real historical readings for a compound+assay from silver.assay_results,
+    read on behalf of the signed-in user (UC enforces their grants)."""
+    tok = _user_token(request)
+    if not tok:
+        return JSONResponse({"error": "user_authorization_required"}, status_code=401)
     try:
         c = compound.replace("'", "")
         a = assay.replace("'", "")
@@ -181,7 +190,7 @@ def history(compound: str, assay: str):
             "cast(acquired_ts AS STRING) AS acquired_ts, qc_flag "
             "FROM lead_opt_demo.silver.assay_results "
             f"WHERE compound_id = '{c}' AND assay_name = '{a}' "
-            "ORDER BY acquired_ts")
+            "ORDER BY acquired_ts", tok)
         return {"compound_id": compound, "assay_name": assay, "readings": rows}
     except Exception as e:  # noqa: BLE001
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
@@ -202,23 +211,34 @@ async def resolve(request: Request):
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
 
 
-@app.get("/api/rooms")
-def rooms():
-    """Which Genie rooms this app can address (drives the ask-box selector)."""
-    return {"rooms": list(GENIE_ROOMS.keys())}
-
-
 @app.post("/api/ask")
 async def ask(request: Request):
+    """Start a Genie One question and return immediately with ids to poll.
+    Genie One is async and can take ~30s+; the browser polls /api/ask/poll so the
+    request never hangs behind the Apps proxy timeout."""
     body = await request.json()
     q = (body.get("question") or "").strip()
-    room = (body.get("room") or "preclinical").strip()
     if not q:
         return JSONResponse({"error": "empty question"}, status_code=400)
-    if room not in GENIE_ROOMS:
-        return JSONResponse({"error": f"unknown room '{room}'",
-                             "allowed": list(GENIE_ROOMS)}, status_code=400)
-    return ask_genie(q, room)
+    if not _user_token(request):
+        return JSONResponse({"error": "user_authorization_required"}, status_code=401)
+    return _genie_for(request).start(q, conversation_id=body.get("conversation_id"))
+
+
+@app.get("/api/ask/poll")
+def ask_poll(request: Request, conversation_id: str, response_id: str):
+    if not _user_token(request):
+        return JSONResponse({"error": "user_authorization_required"}, status_code=401)
+    return _genie_for(request).poll(conversation_id, response_id)
+
+
+@app.get("/api/ask/query-result")
+def ask_query_result(request: Request, conversation_id: str, response_id: str, item_id: str):
+    """Rows behind one of Genie's query_items, fetched as the signed-in user so
+    the app can render Genie's own data natively (table + chart)."""
+    if not _user_token(request):
+        return JSONResponse({"error": "user_authorization_required"}, status_code=401)
+    return _genie_for(request).query_result(conversation_id, response_id, item_id)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -226,14 +246,19 @@ def index():
     return INDEX_HTML
 
 
-INDEX_HTML = """<!doctype html>
+INDEX_HTML = r"""<!doctype html>
 <html><head><meta charset="utf-8"><title>Lead-Opt Assay Triage</title>
 <style>
  body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#f6f7f9;color:#1b1f24}
  header{background:#0b3d2e;color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
  header h1{font-size:17px;margin:0;font-weight:600}
  #user{font-size:13px;opacity:.85}
- main{max-width:1120px;margin:20px auto;padding:0 16px}
+ main{max-width:1520px;margin:20px auto;padding:0 16px}
+ .shell{display:flex;gap:18px;align-items:flex-start}
+ .content{flex:1;min-width:0}
+ .chat{width:400px;flex:none;position:sticky;top:20px}
+ .chat .card{display:flex;flex-direction:column;max-height:calc(100vh - 40px);margin-bottom:0}
+ @media(max-width:980px){.shell{flex-direction:column}.chat{width:auto;position:static}.chat .card{max-height:none}}
  .card{background:#fff;border:1px solid #e3e6ea;border-radius:10px;padding:16px 18px;margin-bottom:18px}
  h2{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#5a6b7b;margin:0 0 12px}
  .grid{display:grid;grid-template-columns:1fr 2fr;gap:18px}
@@ -251,7 +276,7 @@ INDEX_HTML = """<!doctype html>
  button:disabled{opacity:.5}
  select,input{font:inherit;padding:6px 8px;border:1px solid #ccd2d9;border-radius:6px}
  input{width:100%;box-sizing:border-box}
- #answer{white-space:pre-wrap;background:#f0f4f2;border-radius:8px;padding:12px;margin-top:10px;font-size:13px;min-height:20px}
+ #answer{white-space:pre-wrap;background:#f0f4f2;border-radius:8px;padding:12px;margin-top:10px;font-size:13px;min-height:20px;flex:1;overflow:auto}
  code{background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:12px}
  .muted{color:#8a97a5;font-size:12px}
  .kpi{font-size:26px;font-weight:700;color:#0b3d2e}
@@ -261,9 +286,31 @@ INDEX_HTML = """<!doctype html>
  .cc.correlated{background:#fdeaea;color:#b3261e;border-color:#f3c0c0}
  .cc.checked{background:#eef1f4;color:#41505f}
  .cc.nomap{background:transparent;color:#8a97a5;border-color:#d5dbe1;border-style:dashed}
+ .trace{margin:0 0 10px;border-left:2px solid #d7e3dc;padding-left:10px}
+ .trace .step{font-size:12px;color:#41505f;padding:2px 0;display:flex;gap:6px;align-items:baseline}
+ .trace .step .mk{flex:none;font-size:11px}
+ .trace .step.run .mk{color:#b26a00}.trace .step.think .mk{color:#0b3d2e}
+ .trace.live .step:last-child{color:#0b3d2e;font-weight:600}
+ .trace.done{opacity:.7}
+ .final{margin-top:4px}
+ details.explain{margin-top:12px;border-top:1px solid #eef1f4;padding-top:8px}
+ details.explain>summary{cursor:pointer;font-size:12px;color:#0b3d2e;font-weight:600;list-style:none}
+ details.explain>summary::-webkit-details-marker{display:none}
+ details.explain>summary::before{content:'▸ ';}
+ details.explain[open]>summary::before{content:'▾ ';}
+ .qi{margin:10px 0}
+ .qi .qh{font-size:11px;color:#5a6b7b;font-weight:600;margin-bottom:4px}
+ pre.sql{background:#14231e;color:#d6e9df;padding:9px 10px;border-radius:6px;overflow:auto;font-size:11px;line-height:1.45;font-family:'DM Mono',ui-monospace,SFMono-Regular,monospace;white-space:pre;margin:0 0 6px}
+ .chart{margin:6px 0}
+ .chart .row{display:flex;align-items:center;gap:6px;font-size:11px;margin:2px 0}
+ .chart .row .lbl{flex:none;width:110px;text-align:right;color:#41505f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .chart .row .track{flex:1;background:#eef1f4;border-radius:3px;overflow:hidden}
+ .chart .row .fill{height:12px;background:#0b3d2e;border-radius:3px}
+ .chart .row .val{flex:none;color:#5a6b7b;min-width:44px}
 </style></head><body>
 <header><h1>Lead-Opt Assay Triage — review queue</h1><span id="user"></span></header>
-<main>
+<main><div class="shell">
+ <div class="content">
  <div class="grid">
   <div class="card">
    <h2>Triage KPIs <span class="muted" id="kpiNote"></span></h2>
@@ -287,17 +334,18 @@ INDEX_HTML = """<!doctype html>
   </tr></thead><tbody></tbody></table>
   <div class="muted" style="margin-top:8px">Click a compound to expand its flagged readings (widest breach first), resolve them, see its assay history, and the scoped clinical summary. Clinical states are rendered distinctly: <span class="cc correlated">correlated</span> <span class="cc checked">checked, no correlation</span> <span class="cc nomap">no clinical data</span>.</div>
  </div>
- <div class="card">
-  <h2>Ask a Genie room <span class="muted">via Databricks Managed MCP</span></h2>
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-   <select id="room" title="Which governed Genie room to ask"></select>
-   <input id="q" placeholder="e.g. Which compounds are currently flagged?" style="flex:1;min-width:220px">
-   <button onclick="ask()">Ask</button></div>
-  <div id="roomNote" class="muted" style="margin-top:6px"></div>
-  <div id="answer" class="muted" style="margin-top:8px">Answers come from the governed silver tables via the selected Genie room (one MCP interface, room-scoped).</div>
-  <div id="sql" class="muted" style="margin-top:8px"></div>
  </div>
-</main>
+ <aside class="chat">
+  <div class="card">
+   <h2>Ask Genie <span class="muted">via Genie One MCP (one surface, auto-routed)</span></h2>
+   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input id="q" placeholder="e.g. Which compounds are flagged, and do any correlate with a clinical signal?" style="flex:1;min-width:200px">
+    <button onclick="ask()">Ask</button></div>
+   <div id="answer" class="muted" style="margin-top:10px">One natural-language surface over the whole workspace — Genie One routes the question to the right governed data itself; no room to pick. Answers run <b>as you</b> (on-behalf-of-user): Unity Catalog scopes every result to your own grants, so patient-level clinical data is denied per your access, not a shared identity.</div>
+   <div id="deep" style="margin-top:8px"></div>
+  </div>
+ </aside>
+</div></main>
 <script>
 const REASONS=[["false_positive","False positive"],["confirmed_concern","Confirmed concern"],["escalated_for_confirmatory_assay","Escalate for confirmatory assay"]];
 function ccBadge(state){
@@ -402,22 +450,109 @@ async function resolve(id,btn){
  const r=await fetch('/api/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reading_id:id,resolution_reason:reason,note:'resolved from dashboard'})});
  if(r.ok){await loadRollup();await loadKpi();await loadFba();}else{btn.disabled=false;btn.textContent='Resolve';}
 }
-const ROOM_LABELS={preclinical:'Preclinical (assay silver)',clinical:'Clinical correlation (aggregate-only, scoped)'};
-const ROOM_HINT={preclinical:'Governed preclinical silver tables.',clinical:'Separate scoped room — aggregate correlation summary only, no patient-level data.'};
-async function loadRooms(){
- const sel=document.getElementById('room');const d=await(await fetch('/api/rooms')).json();
- sel.innerHTML=(d.rooms||[]).map(r=>`<option value="${r}">${ROOM_LABELS[r]||r}</option>`).join('');
- sel.onchange=()=>{document.getElementById('roomNote').textContent=ROOM_HINT[sel.value]||'';};
- sel.onchange();
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mdInline(s){
+ s=escHtml(s);
+ s=s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+ s=s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+ s=s.replace(/`([^`]+)`/g,'<code>$1</code>');
+ return s;
+}
+function mdToHtml(md){
+ if(!md)return '';
+ const lines=md.split('\n');let html='';let i=0;
+ while(i<lines.length){
+  const line=lines[i];
+  if(line.indexOf('|')>=0 && i+1<lines.length && lines[i+1].indexOf('-')>=0 && /^[\s:|-]+$/.test(lines[i+1])){
+   let header=line.split('|').map(c=>c.trim());
+   if(header[0]==='')header.shift(); if(header.length&&header[header.length-1]==='')header.pop();
+   i+=2;let rows=[];
+   while(i<lines.length && lines[i].indexOf('|')>=0){
+    let cells=lines[i].split('|').map(c=>c.trim());
+    if(cells[0]==='')cells.shift(); if(cells.length&&cells[cells.length-1]==='')cells.pop();
+    rows.push(cells);i++;
+   }
+   html+='<div style="overflow-x:auto"><table class="htab"><thead><tr>'+header.map(h=>'<th>'+mdInline(h)+'</th>').join('')+'</tr></thead><tbody>';
+   rows.forEach(r=>{html+='<tr>'+r.map(c=>'<td>'+mdInline(c)+'</td>').join('')+'</tr>';});
+   html+='</tbody></table></div>';continue;
+  }
+  if(/^#{1,6}\s/.test(line)){const lvl=line.match(/^#+/)[0].length;html+='<div style="font-weight:600;margin:8px 0 4px;font-size:'+(15-lvl)+'px">'+mdInline(line.replace(/^#+\s*/,''))+'</div>';i++;continue;}
+  if(line.trim()===''){i++;continue;}
+  html+='<div style="margin:2px 0">'+mdInline(line)+'</div>';i++;
+ }
+ return html;
+}
+const TERMINAL=['completed','incomplete','failed','cancelled','error'];
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function stepClass(s){const l=(s||'').toLowerCase();return (l.startsWith('running sql')||l.indexOf('query')>=0)?'run':'think';}
+function renderTrace(el,steps,live){
+ el.className='trace'+(live?' live':' done');
+ el.innerHTML=(steps&&steps.length?steps:['Sending question to Genie…']).map(s=>{
+  const c=stepClass(s);return `<div class="step ${c}"><span class="mk">${c==='run'?'▷':'•'}</span><span>${escHtml(s)}</span></div>`;
+ }).join('');
+}
+function chartHtml(cols,rows){
+ if(!cols||!rows||!rows.length)return '';
+ const isNum=v=>v!==null&&v!==''&&!isNaN(+v);
+ let numIdx=-1;for(let c=0;c<cols.length;c++){if(rows.every(r=>isNum(r[c]))){numIdx=c;break;}}
+ if(numIdx<0)return '';
+ let lblIdx=-1;for(let c=0;c<cols.length;c++){if(c!==numIdx&&rows.some(r=>!isNum(r[c]))){lblIdx=c;break;}}
+ if(lblIdx<0)lblIdx=(numIdx===0?Math.min(1,cols.length-1):0);
+ const data=rows.slice(0,15).map(r=>({l:String(r[lblIdx]==null?'':r[lblIdx]),v:+r[numIdx]}));
+ const max=Math.max(...data.map(d=>Math.abs(d.v)),1);
+ let h='<div class="chart"><div class="qh">'+escHtml(cols[lblIdx])+' &times; '+escHtml(cols[numIdx])+'</div>';
+ data.forEach(d=>{h+=`<div class="row"><span class="lbl" title="${escHtml(d.l)}">${escHtml(d.l)}</span><span class="track"><span class="fill" style="width:${Math.max(2,100*Math.abs(d.v)/max)}%"></span></span><span class="val">${d.v}</span></div>`;});
+ return h+'</div>';
+}
+function tableHtml(cols,rows){
+ if(!cols.length)return '';
+ let h='<div style="overflow-x:auto"><table class="htab"><thead><tr>'+cols.map(c=>'<th>'+escHtml(c)+'</th>').join('')+'</tr></thead><tbody>';
+ rows.slice(0,25).forEach(r=>{h+='<tr>'+r.map(c=>'<td>'+escHtml(String(c==null?'':c))+'</td>').join('')+'</tr>';});
+ return h+'</tbody></table></div>';
+}
+async function renderExplain(container,d,qs){
+ const items=d.query_items||[];
+ if(!items.length)return;
+ const det=document.createElement('details');det.className='explain';
+ det.innerHTML='<summary>How Genie got this — '+items.length+' quer'+(items.length===1?'y':'ies')+' + data</summary>';
+ container.appendChild(det);
+ for(let i=0;i<items.length;i++){
+  const it=items[i];const box=document.createElement('div');box.className='qi';
+  box.innerHTML='<div class="qh">Query '+(i+1)+'</div><pre class="sql">'+escHtml(it.sql||'(sql unavailable)')+'</pre><div class="qr muted" style="font-size:11px">loading rows…</div>';
+  det.appendChild(box);
+  try{
+   const qr=await(await fetch('/api/ask/query-result?'+qs+'&item_id='+encodeURIComponent(it.item_id))).json();
+   const cols=qr.columns||[],rows=qr.rows||[];
+   let html=chartHtml(cols,rows)+tableHtml(cols,rows);
+   if(qr.truncated)html+='<div class="muted" style="font-size:11px">First rows'+(qr.total_row_count?(' of '+qr.total_row_count):'')+' — open in Genie for the full result.</div>';
+   box.querySelector('.qr').innerHTML=html||'<span class="muted">no rows</span>';box.querySelector('.qr').className='qr';
+  }catch(e){ box.querySelector('.qr').innerHTML='<span class="muted">could not load rows</span>'; }
+ }
 }
 async function ask(){
- const q=document.getElementById('q').value;const room=document.getElementById('room').value;
- const a=document.getElementById('answer');const s=document.getElementById('sql');
- if(!q)return;a.textContent='Thinking… ('+(ROOM_LABELS[room]||room)+')';s.textContent='';
- const d=await(await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,room:room})})).json();
- a.textContent=d.text||('(no text answer; status '+d.status+')');
- if(d.sql){s.innerHTML='<code>'+d.sql.replace(/</g,'&lt;')+'</code>';}
+ const q=document.getElementById('q').value.trim();
+ const a=document.getElementById('answer');const dp=document.getElementById('deep');
+ if(!q)return;
+ a.className='';a.innerHTML='<div class="trace live" id="trace"></div>';dp.innerHTML='';
+ const trace=document.getElementById('trace');renderTrace(trace,[],true);
+ let s;
+ try{ s=await(await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})})).json(); }
+ catch(e){ a.className='muted';a.textContent='(request failed)'; return; }
+ if(s.status==='error'||!s.conversation_id||!s.response_id){a.className='muted';a.textContent='(could not start: '+(s.error||s.status)+')';return;}
+ const qs='conversation_id='+encodeURIComponent(s.conversation_id)+'&response_id='+encodeURIComponent(s.response_id);
+ let d=s,steps=[];
+ for(let i=0;i<80 && !TERMINAL.includes((d.status||'').toLowerCase());i++){
+  await sleep(2500);
+  try{ d=await(await fetch('/api/ask/poll?'+qs)).json(); }catch(e){ /* transient */ }
+  if(d.progress_steps&&d.progress_steps.length){steps=d.progress_steps;renderTrace(trace,steps,true);}
+ }
+ renderTrace(trace,steps,false);
+ const fin=document.createElement('div');fin.className='final';
+ fin.innerHTML=d.text?mdToHtml(d.text):'<span class="muted">(no answer; status '+(d.status||'timeout')+')</span>';
+ a.appendChild(fin);
+ await renderExplain(a,d,qs);
+ if(d.deep_link){dp.innerHTML='<a href="'+d.deep_link+'" target="_blank" rel="noopener">Open the full answer &amp; visualizations in Genie One ↗</a>';}
 }
-whoami();loadRooms();loadKpi();loadFba();loadRollup();
+whoami();loadKpi();loadFba();loadRollup();
 </script>
 </body></html>"""

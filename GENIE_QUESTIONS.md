@@ -1,11 +1,21 @@
 # Genie sample questions — Lead-Opt Assay Triage space
 
-> **Access (stage 14):** both rooms below are reached through ONE interface — the
-> Databricks Managed Genie MCP server (`{host}/api/2.0/mcp/genie/{space_id}`),
-> wrapped by `genie/genie_mcp.py :: GenieMCP.ask(space_id, question)`. The app's
-> ask box has a room selector (preclinical / clinical) backed by the same client;
-> each room keeps its own scope and grants — the transport is unified, the
-> governance surface is not.
+> **Access (stage 17):** the app now asks **Genie One** — the single workspace-wide
+> managed MCP server (`{host}/api/2.0/mcp/genie`, tools `genie_ask` /
+> `genie_poll_response`), wrapped by `genie/genie_mcp.py :: GenieOneMCP.ask(question)`.
+> There is no space to pick and no room dropdown: Genie One routes each question to
+> the right data via the workspace Genie Ontology. The spaces below still exist and
+> Genie One routes to them, but the app no longer targets them individually.
+>
+> **Governance under Genie One:** because it is a single natural-language surface,
+> the preclinical/clinical separation is enforced by **Unity Catalog on the calling
+> identity**, not by a scoped room. The app calls as its service principal, which
+> stage 08 UC-denied the raw clinical tables — so patient-level data is unreachable
+> through this surface (verified live: the SP can answer preclinical and aggregate
+> clinical-correlation questions, but a patient-level question is refused).
+>
+> The per-space client (`GenieMCP`, `{host}/api/2.0/mcp/genie/{space_id}`) remains in
+> `genie_mcp.py` for targeting one specific room; the app just doesn't use it.
 
 
 Natural-language questions a scientist would actually ask, with the table/join
