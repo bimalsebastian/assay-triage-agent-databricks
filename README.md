@@ -4,6 +4,10 @@ Six stages, one per required component (Lakeflow, Unity Catalog,
 Lakebase, ML/GenAI, Genie, Databricks App), built as an integrated
 journey against your real Azure Databricks workspace.
 
+> **Evaluators: [`SUBMISSION.md`](SUBMISSION.md) answers the four submission questions**,
+> and **[`notebooks/execution_evidence.ipynb`](notebooks/execution_evidence.ipynb)** is the
+> executed notebook (committed with outputs) that proves the build ran. Both are text-only.
+
 ## For evaluators — where to look (all text, no screenshots needed)
 
 - **[`notebooks/execution_evidence.ipynb`](notebooks/execution_evidence.ipynb)** —
