@@ -8,6 +8,32 @@ journey against your real Azure Databricks workspace.
 > and **[`notebooks/execution_evidence.ipynb`](notebooks/execution_evidence.ipynb)** is the
 > executed notebook (committed with outputs) that proves the build ran. Both are text-only.
 
+### Proof it ran — real output, inline (full set in the executed notebook + `EVIDENCE.md`)
+
+Captured live from workspace `adb-7405610110498224` (run as `bimal.sebastian@databricks.com`):
+
+```
+# Lakeflow ingestion -> bronze Delta (real row counts)
+row_count | compounds | assays | earliest                 | latest
+240       | 24        | 5      | 2026-09-10T08:30:16Z     | 2026-09-13T07:25:28Z
+
+# Deterministic UC flagging function: 240 readings -> 14 flagged (each with its reason)
+total=240 | flagged=14 | not_flagged=226      hERG_IC50 7 | LOGD_7_4 3 | CYP3A4_IC50 3 | KINETIC_SOL 1
+
+# Gen AI (Genie One MCP): live NL answer WITH the SQL Genie generated
+Q: "Which assay has the most flagged readings?"  ->  "hERG_IC50, with 7 flagged readings."
+SQL: SELECT assay_name, COUNT(*) AS flagged_reading_count
+     FROM lead_opt_demo.silver.assay_flags WHERE is_flagged = true
+     GROUP BY assay_name ORDER BY flagged_reading_count DESC
+
+# Gen AI (ai_query, advisory + audited): real model output
+CMPD00012 (correlated, 2 adverse obs) -> ACTION: escalate for confirmatory assay
+  RATIONALE: hERG_IC50/CYP3A4_IC50 below threshold, correlated with qt_prolongation & cardiac_arrhythmia
+
+# Deployed Databricks App serving real data: 121 x "200 OK" across
+#   /api/queue/rollup, /api/kpi, /api/flags-by-assay, /api/ask/poll, /api/whoami
+```
+
 ## For evaluators — where to look (all text, no screenshots needed)
 
 - **[`notebooks/execution_evidence.ipynb`](notebooks/execution_evidence.ipynb)** —
@@ -22,8 +48,9 @@ journey against your real Azure Databricks workspace.
   [`notebooks/execution_evidence.md`](notebooks/execution_evidence.md).
 - **[`EVIDENCE.md`](EVIDENCE.md)** — the same proof inlined as readable markdown, plus
   the Lakebase review queue + sync + audit round-trip and a live governance refusal.
-- **`evidence/`** — the 21 raw per-stage captures (`stageNN-*.txt`): real query output,
-  run logs, and records. Read these, not descriptions of them.
+- **`evidence/`** — the 25 raw per-stage captures (`stageNN-*.txt`): real query output,
+  run logs, and records (incl. deployed-app serving logs + a full Genie response). Read
+  these, not descriptions of them.
 - **`docs/BUILD_PROCESS.md`** — how it was built with Claude Code: the prompt
   sequence, the persistent `CLAUDE.md` contract, and the evidence-gated
   discipline. (Build conversation ID available on request via the submission form.)

@@ -7,6 +7,21 @@
 > [`notebooks/execution_evidence.md`](notebooks/execution_evidence.md)) and in
 > [`EVIDENCE.md`](EVIDENCE.md).
 
+### Proof it ran — real output, inline
+
+Captured live from workspace `adb-7405610110498224` (run as `bimal.sebastian@databricks.com`):
+
+```
+# Lakeflow ingestion -> bronze Delta:  240 rows | 24 compounds | 5 assays
+# Deterministic UC flag function:      240 readings -> 14 flagged (each with its reason)
+#                                      hERG_IC50 7 | LOGD_7_4 3 | CYP3A4_IC50 3 | KINETIC_SOL 1
+# Genie One MCP (Gen AI), live:        "Which assay has the most flagged readings?" -> "hERG_IC50, 7"
+#   generated SQL:  SELECT assay_name, COUNT(*) FROM lead_opt_demo.silver.assay_flags
+#                   WHERE is_flagged = true GROUP BY assay_name ORDER BY 2 DESC
+# ai_query (Gen AI, advisory+audited): CMPD00012 (correlated) -> "escalate for confirmatory assay"
+# Deployed app serving real data:      121 x 200 OK across /api/queue/rollup,/kpi,/flags-by-assay,/ask/poll
+```
+
 ---
 
 ## 1. What is the business challenge you are solving?
