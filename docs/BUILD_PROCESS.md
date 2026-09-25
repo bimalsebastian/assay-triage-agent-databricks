@@ -5,6 +5,11 @@
 > committed evidence is real. Nothing here is a screenshot; every artefact it
 > references is text in this repo.
 
+> **The execution evidence itself is inlined, readable, in [`EVIDENCE.md`](../EVIDENCE.md)**
+> — the flagging run (240 → 14), the live Lakebase queue + audit round-trip, a real
+> Genie answer with the SQL it generated, a live governance refusal, and the clinical
+> blended-risk sort. This doc explains the *discipline*; `EVIDENCE.md` is the *proof it ran*.
+
 ## Tooling
 
 Built with **Claude Code** (Anthropic's CLI coding agent) driving the Databricks

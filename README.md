@@ -6,9 +6,15 @@ journey against your real Azure Databricks workspace.
 
 ## For evaluators — where to look (all text, no screenshots needed)
 
-- **`evidence/`** — committed proof each stage actually ran: real query output,
-  run logs, and records (240 ingested rows, 14 flagged, live queue, logged
-  reviewer resolutions). Read these, not descriptions of them.
+- **[`EVIDENCE.md`](EVIDENCE.md)** — **start here for proof it ran.** Real runtime
+  output inlined as readable markdown: the ingestion pipeline (240 rows), the
+  flagging run (240 → 14 flagged, with reasons + boundary unit tests), the live
+  Lakebase review queue + sync + audit round-trip, a **real Genie answer with the
+  SQL Genie generated**, a live governance refusal, and the clinical blended-risk
+  sort. Confirm the build's behaviour here without opening the app.
+- **`evidence/`** — the 20 raw per-stage captures (`stageNN-*.txt`) behind
+  `EVIDENCE.md`: real query output, run logs, and records. Read these, not
+  descriptions of them.
 - **`docs/BUILD_PROCESS.md`** — how it was built with Claude Code: the prompt
   sequence, the persistent `CLAUDE.md` contract, and the evidence-gated
   discipline. (Build conversation ID available on request via the submission form.)
@@ -22,6 +28,48 @@ journey against your real Azure Databricks workspace.
   workspace, with a full resource inventory.
 - **`connectors/README.md`** — the custom Lakeflow connectors as a reusable
   reference pattern.
+
+## Proof it ran (two blocks; full set in [`EVIDENCE.md`](EVIDENCE.md))
+
+Deterministic flagging over 240 real ingested readings — 14 flagged, each with its
+reasoning (`evidence/stage02-flags-evidence.txt`):
+
+```
+total | flagged | not_flagged        assay_name  | flagged
+------+---------+------------        ------------+--------
+240   | 14      | 226                hERG_IC50   | 7
+                                     LOGD_7_4    | 3   (+ CYP3A4_IC50 3, KINETIC_SOL 1)
+```
+
+A real Genie answer **with the SQL Genie generated**, run live over governed silver
+(`evidence/stage04-genie-evidence.txt`):
+
+```
+Q: Which compounds are currently flagged?
+generated SQL:
+  SELECT `compound_id`,`assay_name`,`result_value`,`threshold`,`reason`
+  FROM `lead_opt_demo`.`silver`.`assay_flags` WHERE `is_flagged` = true ORDER BY `margin` ASC
+answer: "Across the 14 flagged readings, hERG_IC50 appears most often ..."
+```
+
+## Who owns these numbers — the accountable buyer
+
+The domain metrics this build targets are not generic. In a real engagement each
+is owned by a named, compensated role:
+
+- **VP / Head of Lead Optimization (Discovery Sciences)** — owns and is measured on
+  **cycle time from flag to kill decision, cost per wasted synthesis-and-assay
+  cycle, the share of flagged compounds carried forward, and candidate throughput.**
+  This is the funding buyer; the review-queue KPIs (median flag→resolve, false-positive
+  rate, outcome mix) are their operational dashboard.
+- **Head of R&D Data & AI Platform / Principal Data Architect (Research Informatics)**
+  — owns **governance posture, per-user access enforcement, data quality, PHI-shaped
+  clinical security, and the audit trail.** This is the technical approver whose veto
+  the funding buyer needs cleared.
+
+The Gen AI component is **Genie One MCP** — see [`EVIDENCE.md` §6](EVIDENCE.md#6-where-the-gen-ai-lives-and-the-ai_query-boundary-to-avoid-ambiguity)
+for exactly where it lives in code (`genie/genie_mcp.py`, the `/api/ask*` endpoints
+in `app/app.py`) and why `ai_query()` was deliberately excluded as the flagging authority.
 
 ## One-time setup
 
