@@ -1,0 +1,37 @@
+# Stage 22 — drift-triggered threshold recalibration (LEVEL-UP) — REAL run
+# Reads real reviewer outcomes from Lakebase resolved_items; opens a threshold-review
+# task when an assay's false-positive rate drifts above tolerance.
+# Script: serving/drift_recalibration.py   Lakebase: projects/lead-opt-triage (db lead_opt)
+# Generated: 2026-09-25T14:58:10Z
+
+## Real reviewer outcomes it reads (resolved_items, live)
+resolution_reason                | count
+---------------------------------+------
+false_positive                   | 4
+confirmed_concern                | 2
+escalated_for_confirmatory_assay | 2
+total resolved                   | 8
+
+## Live run: python serving/drift_recalibration.py --tolerance 0.20 --min-resolved 3
+drift check @ 2026-09-25T14:58:10Z  tolerance=20%  min_resolved=3
+assay            n  fp    fpr  status
+CYP3A4_IC50      2   1    50%  insufficient samples
+LOGD_7_4         2   1    50%  insufficient samples
+hERG_IC50        4   2    50%  DRIFT -> open review task
+
+threshold_review_tasks now open: 1 opened/updated this run
+  [open] tr-hERG_IC50-2026-09-25  fpr=50%
+         Review hERG_IC50 deterministic threshold: 2/4 recent flags were resolved
+         as false positives (FPR 50% > 20%).
+
+## What this shows
+- The job keys off the SAME false-positive-rate KPI the Lakebase layer already computes
+  from real resolver decisions — no new signal invented.
+- hERG_IC50 (4 resolved, 2 false positives) drifts above the 20% tolerance and with
+  enough samples, so a threshold-review task is opened for a toxicologist.
+- Low-sample assays (n<3) are held as "insufficient samples" rather than firing on noise.
+- The task lands in threshold_review_tasks (Lakebase, operational, alongside the review
+  queue) with the observed FPR, sample counts, tolerance and a suggested action — an
+  auditable prompt to re-examine the deterministic thresholds.
+- The deterministic flag remains the authority; this closes the loop by flagging the
+  FLAGGER for human review when reviewer outcomes say it is drifting.

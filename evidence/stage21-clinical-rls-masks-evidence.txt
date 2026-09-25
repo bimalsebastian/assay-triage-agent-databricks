@@ -1,0 +1,49 @@
+# Stage 21 — Explicit UC ROW-LEVEL SECURITY + COLUMN MASKS on clinical data — REAL run
+# Workspace: adb-7405610110498224.4.azuredatabricks.net
+# Table: lead_opt_demo_clinical.silver.clinical_observations
+# SQL: transforms/19_clinical_rls_masks.sql   Generated: 2026-09-25 (UTC)
+# LEVEL-UP: makes the tiered clinical-governance an explicit, enforced UC artifact
+# (row filter + column masks), on top of the separate-catalog + de-identification design.
+
+## Policies attached (information_schema — the visible artifact)
+# column masks:
+column_name        | mask_name
+-------------------+------------------------------------------------
+patient_pseudonym  | lead_opt_demo_clinical.silver.mask_patient_key
+value              | lead_opt_demo_clinical.silver.mask_clinical_value
+# row filters:
+table_name           | filter_name
+---------------------+-----------------------------------------------
+clinical_observations| lead_opt_demo_clinical.silver.rf_clinical_obs
+
+## Enforcement PROVEN on a real identity (the caller is NOT a clinical PI)
+SELECT current_user() AS me, is_account_group_member('clinical_pis') AS is_pi;
+  me = bimal.sebastian@databricks.com | is_pi = false
+
+## SELECT from clinical_observations as that non-PI identity — masks + row filter ENFORCED
+patient_pseudonym | drug_code | observation_type | value
+------------------+-----------+------------------+-------------------------------------------------
+anon-432175896f   | DRG-0012  | adverse_reaction | REDACTED — clinical detail (clinical_pis only)
+anon-dec94121bf   | DRG-0012  | adverse_reaction | REDACTED — clinical detail (clinical_pis only)
+anon-20a72df703   | DRG-0777  | adverse_reaction | REDACTED — clinical detail (clinical_pis only)
+  -> value is masked; patient_pseudonym is FURTHER re-hashed (anon-...) so a non-PI cannot
+     even link rows across the table.
+
+## Row filter effect (non-PI sees NO raw lab_result rows)
+SELECT observation_type, count(*) FROM ... GROUP BY observation_type;
+  adverse_reaction | 3        <- lab_result rows (e.g. 'QTc 478 ms', 'ALT 34 U/L') are hidden
+                                 from non-PIs; adverse_reaction rows stay visible so the
+                                 aggregate convergence signal is unaffected.
+
+## Policy definitions (bodies committed in transforms/19_clinical_rls_masks.sql)
+mask_clinical_value(v)  -> CASE WHEN is_account_group_member('clinical_pis') THEN v
+                                ELSE 'REDACTED — clinical detail (clinical_pis only)' END
+mask_patient_key(p)     -> CASE WHEN is_account_group_member('clinical_pis') THEN p
+                                ELSE concat('anon-', substr(sha2(p,256),1,10)) END
+rf_clinical_obs(obs)    -> is_account_group_member('clinical_pis') OR obs <> 'lab_result'
+
+## Why this matters
+The tiered clinical-governance story ("chemists see aggregates, PIs see masked detail") is
+now enforced by Unity Catalog itself as a visible artifact — not just described in grants
+or comments. A clinical_pis member sees full detail; every other identity is masked and
+row-filtered, per-person, at query time.

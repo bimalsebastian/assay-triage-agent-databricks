@@ -92,6 +92,24 @@ path — the same defensibility trade as #1, applied to guidance rather than the
 *Evidence:* `transforms/18_ai_recommendation.sql`,
 `evidence/stage18-ai-recommendation-evidence.txt`, `EVIDENCE.md` §7.
 
+### 8. Clinical governance made an explicit UC artifact: RLS + column masks
+**Added (stage 21):** real Unity Catalog row-level security and column masks on
+`lead_opt_demo_clinical.silver.clinical_observations`
+(`transforms/19_clinical_rls_masks.sql`), so the tiered clinical-governance story is
+enforced by UC per-identity, not just described by grants/comments. Non-PIs get the
+`value` masked, the `patient_pseudonym` re-hashed, and raw `lab_result` rows filtered
+out; `clinical_pis` members see detail. Adverse-reaction rows stay visible so the
+aggregate convergence signal is unaffected. Proven live on a non-PI identity.
+*Evidence:* `evidence/stage21-clinical-rls-masks-evidence.txt`, `EVIDENCE.md` §9.
+
+### 9. Closing the loop: drift-triggered threshold recalibration
+**Added (stage 22):** `serving/drift_recalibration.py` watches the false-positive-rate
+KPI already computed from real reviewer outcomes (Lakebase `resolved_items`) and opens a
+`threshold_review_tasks` entry when an assay's FPR drifts above tolerance — prompting a
+toxicologist to re-examine that assay's deterministic thresholds. The deterministic flag
+stays the authority; this flags the *flagger* for review when outcomes say it is drifting.
+*Evidence:* `evidence/stage22-drift-recalibration-evidence.txt`, `EVIDENCE.md` §9.
+
 ## UI surface strategy: responsive web now; native Android deliberately deferred
 
 **What is built and demonstrable (as code):** the dashboard is a **responsive,

@@ -275,3 +275,18 @@ This is a text-readable trace of the app actually serving the build's data.
 **A full live Genie One response** (`evidence/stage20-genie-one-response.txt`) — the
 complete "which compounds are flagged and why" answer: the 14-row flagged table with
 every reason, the key observations, and the Genie query-result deep links.
+
+---
+
+## 9. Level-ups delivered (each run live, each with evidence)
+
+- **Advisory `ai_query()` recommendation** — §7 above · `evidence/stage18-ai-recommendation-evidence.txt`.
+- **Explicit UC row-level security + column masks on clinical data** —
+  `transforms/19_clinical_rls_masks.sql`, `evidence/stage21-clinical-rls-masks-evidence.txt`.
+  Enforcement proven on a real non-PI identity: `value` → `REDACTED`, `patient_pseudonym`
+  → re-hashed `anon-…`, raw `lab_result` rows filtered out. Policies visible in
+  `information_schema.column_masks` / `.row_filters`.
+- **Drift-triggered threshold recalibration** — `serving/drift_recalibration.py`,
+  `evidence/stage22-drift-recalibration-evidence.txt`. Reads the real false-positive-rate
+  KPI from Lakebase `resolved_items`; hERG_IC50 (FPR 50% > 20% tolerance) opened a
+  `threshold_review_tasks` entry to re-examine that assay's deterministic thresholds.
