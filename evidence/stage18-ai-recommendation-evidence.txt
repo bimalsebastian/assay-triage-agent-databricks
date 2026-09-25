@@ -1,0 +1,75 @@
+# Stage 18 — ADVISORY AI recommendation (ai_query / Gen AI) — REAL workspace run
+# Workspace: adb-7405610110498224.4.azuredatabricks.net
+# Warehouse: 13d08bfefc608fe6
+# Table: lead_opt_demo.silver.assay_flag_recommendations
+# Model: databricks-meta-llama-3-3-70b-instruct (FM API pay-per-token, batch inference)
+# SQL: transforms/18_ai_recommendation.sql   Generated: 2026-09-25T13:59:33Z
+
+## What this is
+The FIRST and ONLY ai_query()/LLM call in the build, and it is ADVISORY. The flag
+AUTHORITY remains the deterministic UC function check_toxicity_flag (stage 02). Here
+the LLM turns already-computed deterministic facts (the flag reason text + the clinical
+correlation state) into a natural-language recommended NEXT ACTION. It invents no data.
+Every recommendation row logs its exact input prompt, the model endpoint, and a
+generated_ts, so the audit trail now covers AI-generated GUIDANCE as well as the human
+resolution decisions already logged in Lakebase (stage 03).
+
+## Row count / provenance (real)
+count | min(generated_ts)           | model_endpoint
+------+-----------------------------+---------------------------------------
+8     | 2026-09-25T13:59:33.664Z    | databricks-meta-llama-3-3-70b-instruct
+
+## The 8 live recommendations (grounded in the deterministic flags + clinical correlation)
+compound  | flags | clinical_state          | adverse | recommendation
+----------+-------+-------------------------+---------+--------------------------------------------------------------
+CMPD00012 | 3     | correlated              | 2       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: multiple flagged hERG_IC50 / CYP3A4_IC50 readings below the
+          |       |                         |         | low-concern threshold, correlated with qt_prolongation and cardiac_arrhythmia.
+CMPD00006 | 1     | correlated              | 1       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: hERG_IC50 0.846 uM breaches the low-concern threshold and is
+          |       |                         |         | correlated with an adverse observation of mild_rash.
+CMPD00007 | 1     | correlated              | 1       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: CYP3A4_IC50 0.796 uM breaches the low-concern threshold with a
+          |       |                         |         | correlated adverse-reaction signal.
+CMPD00004 | 3     | checked_no_correlation  | 0       | ACTION: monitor next cycle
+          |       |                         |         | RATIONALE: CYP3A4_IC50 / hERG_IC50 / LOGD_7_4 breached, but no adverse
+          |       |                         |         | clinical observation — continued observation.
+CMPD00008 | 2     | checked_no_correlation  | 0       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: LOGD_7_4 and hERG_IC50 both breached — warrants confirmatory assays.
+CMPD00003 | 1     | no_mapping              | -       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: LOGD_7_4 5.332 breaches the high-concern threshold 5.0.
+CMPD00014 | 1     | no_mapping              | -       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: KINETIC_SOL 4.51 uM below the 10.0 uM threshold — confirm.
+CMPD00024 | 2     | no_mapping              | -       | ACTION: escalate for confirmatory assay
+          |       |                         |         | RATIONALE: two hERG_IC50 readings (0.988, 0.795 uM) breach the 1.0 uM threshold.
+
+Note the correlated compounds (CMPD00012/06/07) all draw a stronger "escalate"
+recommendation grounded in the named clinical signal — the AI guidance tracks the
+deterministic blended-risk story (stage 16), it does not replace it.
+
+## One full AUDIT row (input prompt + model + timestamp are all logged per recommendation)
+compound_id  : CMPD00012
+model_endpoint: databricks-meta-llama-3-3-70b-instruct
+generated_ts : 2026-09-25 13:59:33.664936+00
+recommendation_input (the exact grounded prompt, stored for audit):
+  "You are assisting a pharma lead-optimization reviewer. This recommendation is ADVISORY
+   only; a deterministic rule already made the flag decision — do not contradict it or
+   invent data. Compound CMPD00012 has 3 flagged assay reading(s). Deterministic flag
+   reasoning: FLAGGED: hERG_IC50 reading 0.259 uM breaches synthetic low-concern threshold
+   1.0 uM (margin -0.741). ... || FLAGGED: CYP3A4_IC50 reading 0.421 uM ... || FLAGGED:
+   hERG_IC50 reading 0.269 uM ... . Assay breaches: hERG_IC50 0.259 vs threshold 1.0
+   (margin -0.741); CYP3A4_IC50 0.421 vs threshold 1.0 (margin -0.579); hERG_IC50 0.269 vs
+   threshold 1.0 (margin -0.731). Clinical correlation state: correlated (2 adverse
+   observation(s): mapped to DRG-0012 — adverse_reaction signal: qt_prolongation,
+   cardiac_arrhythmia). Reply in exactly two lines ... ACTION ... RATIONALE ..."
+
+## Smoke test (endpoint selection)
+- databricks-claude-fable-5     -> PERMISSION_DENIED: not supported for batch inference.
+- databricks-meta-llama-3-3-70b-instruct -> SUCCEEDED (used).
+
+## Boundary of the design (honest)
+- Advisory only: the deterministic flag decides go/kill triage; this layer suggests the
+  next action a reviewer might take, and is overridable.
+- Auditable: prompt + model + timestamp persisted per row (this table), so AI guidance is
+  as traceable as the human resolutions in Lakebase resolved_items.
+- Temperature 0.0 for reproducibility of the guidance given identical grounded facts.

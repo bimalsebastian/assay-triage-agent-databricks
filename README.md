@@ -67,9 +67,12 @@ is owned by a named, compensated role:
   clinical security, and the audit trail.** This is the technical approver whose veto
   the funding buyer needs cleared.
 
-The Gen AI component is **Genie One MCP** — see [`EVIDENCE.md` §6](EVIDENCE.md#6-where-the-gen-ai-lives-and-the-ai_query-boundary-to-avoid-ambiguity)
-for exactly where it lives in code (`genie/genie_mcp.py`, the `/api/ask*` endpoints
-in `app/app.py`) and why `ai_query()` was deliberately excluded as the flagging authority.
+The Gen AI shows up in **two** places (see [`EVIDENCE.md` §6-7](EVIDENCE.md#6-where-the-gen-ai-lives-two-constructs-one-clear-boundary)):
+**Genie One MCP** for NL querying that shows its SQL (`genie/genie_mcp.py`, the
+`/api/ask*` endpoints in `app/app.py`), and an **advisory `ai_query()` recommendation
+layer** (`transforms/18_ai_recommendation.sql`) that turns the deterministic flag +
+clinical correlation into a logged, auditable "recommended next action". The flag
+*authority* stays deterministic — the LLM is advisory and never decides the flag.
 
 ## One-time setup
 

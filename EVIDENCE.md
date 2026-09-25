@@ -3,7 +3,7 @@
 > **This is readable execution output, not a description of it.** Every block below
 > is real output captured from the live Azure Databricks workspace
 > `adb-7405610110498224.4.azuredatabricks.net` during the build, with the source
-> file and timestamp named. The raw captures live in [`evidence/`](evidence/) (20
+> file and timestamp named. The raw captures live in [`evidence/`](evidence/) (21
 > files, `stageNN-*.txt`); the most load-bearing ones are inlined here so the
 > build's runtime behaviour can be confirmed directly, without opening the app or
 > running anything.
@@ -17,6 +17,8 @@ Quick map of what proves what:
 | Lakebase serving | Live review queue (psql), sync run, resolve round-trip | [§3](#3-lakebase-serving--live-review-queue--audit-round-trip) · `evidence/stage03-review-queue-evidence.txt` |
 | Genie (Gen AI) | Real NL answers **with the SQL Genie generated**, and a governance refusal | [§4](#4-genie-gen-ai--real-answers-with-generated-sql--a-governance-refusal) · `evidence/stage04-genie-evidence.txt`, `evidence/stage17-genie-one-mcp-evidence.txt` |
 | Clinical convergence | Live `/api/queue/rollup` convergence headline + blended-risk sort | [§5](#5-clinical-convergence--blended-risk-sort-live-app) · `evidence/stage16-convergence-blended-sort-evidence.txt` |
+| Gen AI — Genie | Real NL answers **with the SQL Genie generated**, and a governance refusal | [§4](#4-genie-gen-ai--real-answers-with-generated-sql--a-governance-refusal) · `evidence/stage04-genie-evidence.txt` |
+| Gen AI — ai_query | Live **advisory** LLM recommendation, grounded + audited (8 rows) | [§7](#7-ai_query-advisory-recommendation--live-output) · `evidence/stage18-ai-recommendation-evidence.txt` |
 
 ---
 
@@ -192,24 +194,58 @@ preclinical-only breach.
 
 ---
 
-## 6. Where the Gen AI lives, and the `ai_query` boundary (to avoid ambiguity)
+## 6. Where the Gen AI lives (two constructs, one clear boundary)
 
-The Gen AI component is **Genie One MCP**. In readable code:
-- **`genie/genie_mcp.py`** — the `GenieOneMCP` JSON-RPC client (`genie_ask` →
-  `genie_poll_response` → `genie_get_query_result`), grounded in the governed
-  silver and clinical views.
+The build uses Gen AI in **two** places, and neither overrides the deterministic
+flag authority:
+
+**(a) Genie One MCP — natural-language querying that shows its SQL.** In readable code:
+- **`genie/genie_mcp.py`** — the `GenieOneMCP` JSON-RPC client (MCP tools
+  `genie_ask` → `genie_poll_response` → `genie_get_query_result`), grounded in the
+  governed silver and clinical views.
 - **`app/app.py`** — the "Ask Genie" surface and its endpoints (`/api/ask`,
   `/api/ask/poll`, `/api/ask/query-result`), which render Genie's thinking trace,
   the **generated SQL**, the result table, and a chart, on the signed-in user's
   on-behalf-of identity.
-- Probe scripts that establish the MCP behaviour are committed:
-  `genie/probe_response.py`, `genie/probe_mcp_app.py`, `genie/probe_matrix.py`.
+- Probe scripts: `genie/probe_response.py`, `genie/probe_mcp_app.py`, `genie/probe_matrix.py`.
 
-**On `ai_query()`:** the string `ai_query` appears in this repo **only as a
-deliberately-excluded alternative**, never as an active call. The flagging
-*authority* is a deterministic UC SQL function (§2), chosen over an `ai_query()`/LLM
-call so every flag is explainable and reproducible in a GxP-adjacent setting. That
-exclusion is documented at `transforms/02_flagging.sql` (the `DESIGN CHOICE`
-comment) and `docs/DESIGN_DECISIONS.md` §1. So a repo scan that finds `ai_query`
-is finding the *rationale for not using it as the flag authority* — the working
-Gen AI construct is Genie, above.
+**(b) `ai_query()` — an ADVISORY recommendation layer (stage 18).**
+`transforms/18_ai_recommendation.sql` calls `ai_query('databricks-meta-llama-3-3-70b-instruct', ...)`
+to turn each compound's *already-computed* deterministic flag reasoning + clinical
+correlation state into a natural-language recommended next action, materialised to
+`lead_opt_demo.silver.assay_flag_recommendations`. Every row logs its exact input
+prompt, the model endpoint, and `generated_ts`, so AI guidance is as auditable as
+the human resolutions in Lakebase. **See §7 for the live output.**
+
+**The boundary (important for the GxP-adjacent story):** the flagging *authority* is
+the deterministic UC SQL function `check_toxicity_flag` (§2), **never** an LLM. The
+`ai_query()` layer is advisory and overridable — it suggests a next action, it does
+not decide the flag. That separation is documented in `transforms/02_flagging.sql`
+(the `DESIGN CHOICE` comment: no LLM as the flag authority), `transforms/18_ai_recommendation.sql`,
+and `docs/DESIGN_DECISIONS.md` (#1 and #7).
+
+---
+
+## 7. ai_query advisory recommendation — live output
+*Source: `evidence/stage18-ai-recommendation-evidence.txt` · model `databricks-meta-llama-3-3-70b-instruct` · 2026-09-25T13:59:33Z*
+
+8 recommendations generated, grounded in the deterministic flags + clinical correlation.
+The correlated compounds draw a stronger "escalate" recommendation, tracking the
+blended-risk story of §5 — the AI guidance follows the deterministic signal, it does
+not replace it.
+
+```
+compound  | flags | clinical_state         | recommendation
+----------+-------+------------------------+--------------------------------------------------------------
+CMPD00012 | 3     | correlated (2 adverse) | ACTION: escalate for confirmatory assay
+          |       |                        | RATIONALE: hERG_IC50 / CYP3A4_IC50 readings below threshold,
+          |       |                        | correlated with qt_prolongation and cardiac_arrhythmia.
+CMPD00006 | 1     | correlated (1 adverse) | ACTION: escalate for confirmatory assay (mild_rash correlated)
+CMPD00004 | 3     | checked_no_correlation | ACTION: monitor next cycle (breached, but no clinical signal)
+CMPD00003 | 1     | no_mapping             | ACTION: escalate for confirmatory assay (LOGD_7_4 5.332 > 5.0)
+          (8 rows total — full set + one complete audit row in the evidence file)
+```
+
+Auditability, per row: the exact grounded input prompt, the `model_endpoint`, and the
+`generated_ts` are all persisted in the table — so a reviewer or auditor can see
+precisely what facts produced each recommendation.

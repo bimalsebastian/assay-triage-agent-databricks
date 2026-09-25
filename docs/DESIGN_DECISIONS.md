@@ -10,10 +10,12 @@
 **Chosen:** a UC SQL function `check_toxicity_flag(...)` that compares a reading
 to the assay's synthetic tox threshold plus the compound's own history and
 returns the full reasoning (threshold, direction, margin, prior N/mean, reason
-text). **Excluded:** an `ai_query()`/LLM call for the flagging authority.
+text). **Excluded here:** an `ai_query()`/LLM call as the flagging *authority*.
 **Why:** this is a GxP-adjacent decision — the reviewer story only works if every
 flag is explainable and reproducible, not "the model said so." The trade of
-flash for defensibility is written into the code.
+flash for defensibility is written into the code. (An LLM *does* appear later, in
+decision #7, but strictly as an **advisory** layer downstream of this deterministic
+flag — it never decides the flag.)
 *Evidence:* `transforms/02_flagging.sql` (see the DESIGN CHOICE comment),
 `evidence/stage02-flags-evidence.txt`.
 
@@ -71,6 +73,24 @@ so it gets governed accordingly; identical grants would signal the governance
 step was skipped.
 *Evidence:* `GOVERNANCE_NOTES.md`, `transforms/08_clinical_silver.sql`,
 `transforms/12_clinical_summary_view.sql`, `evidence/stage08-clinical-governance-evidence.txt`.
+
+### 7. Gen AI recommendation: advisory `ai_query()`, NOT a decision-maker
+**Added (stage 18):** an `ai_query()` call
+(`transforms/18_ai_recommendation.sql`, model
+`databricks-meta-llama-3-3-70b-instruct`) that turns each flagged compound's
+*already-computed* deterministic reasoning + clinical correlation state into a
+natural-language **recommended next action** (deprioritize / escalate for
+confirmatory assay / monitor / proceed), materialised to
+`lead_opt_demo.silver.assay_flag_recommendations`. **Deliberately bounded:** it is
+**advisory and overridable** — the deterministic flag (#1) remains the authority;
+the LLM invents no data (it is grounded only in facts already computed upstream);
+and each row logs its exact input prompt, the model endpoint, and `generated_ts`,
+so AI-generated guidance is as auditable as the human resolutions logged in
+Lakebase. **Why this shape:** it adds the reviewer value of a plain-language "so
+what do I do next" without putting an unexplainable model on the critical go/kill
+path — the same defensibility trade as #1, applied to guidance rather than the flag.
+*Evidence:* `transforms/18_ai_recommendation.sql`,
+`evidence/stage18-ai-recommendation-evidence.txt`, `EVIDENCE.md` §7.
 
 ## UI surface strategy: responsive web now; native Android deliberately deferred
 
