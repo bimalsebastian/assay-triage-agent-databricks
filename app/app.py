@@ -387,6 +387,7 @@ INDEX_HTML = r"""<!doctype html>
       <div class="flex items-center space-x-2">
        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">Compounds with Open Flags</h2>
        <span id="count" class="text-xs font-semibold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200">…</span>
+       <span id="live" class="text-[10px] text-slate-400 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span id="liveTxt">live</span></span>
       </div>
       <div id="convergence" class="flex flex-wrap items-center gap-2 mt-2"></div>
      </div>
@@ -526,7 +527,8 @@ async function loadRollup(){
  document.getElementById('count').textContent=(d.summary.open||0)+' open flags across '+d.compounds.length+' compounds';
  const conv=document.getElementById('convergence');
  if(cv.compounds_open){
-  conv.innerHTML='<span class="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>'+(cv.correlated||0)+' of '+cv.compounds_open+' correlated ('+Math.round((cv.convergence_rate||0)*100)+'% convergence)</span>'
+  const rate=Math.round((cv.convergence_rate||0)*100);
+  conv.innerHTML='<div class="w-full flex items-start gap-2 rounded-lg bg-rose-50/70 border border-rose-200/70 px-3 py-2 text-xs text-rose-900"><span class="text-rose-500 mt-0.5">&#9888;</span><span><b>'+(cv.correlated||0)+' of '+cv.compounds_open+'</b> open compounds carry a preclinical flag <b>and</b> a clinical adverse-event signal — <b>'+rate+'% convergence</b>. These float to the top of the queue for confirmatory review first.</span></div>'
    +'<span class="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">checked: '+(bs.checked_no_correlation||0)+'</span>'
    +'<span class="text-xs font-medium text-slate-500 border border-dashed border-slate-300 px-2.5 py-0.5 rounded-full">no clinical data: '+(bs.no_mapping||0)+'</span>';
  } else conv.innerHTML='';
@@ -699,6 +701,16 @@ async function ask(){
 function askQuick(t){document.getElementById('q').value=t;ask();}
 
 document.getElementById('answer').innerHTML=genieHint();
-whoami();loadKpi();loadFba();loadRollup();
+// Live operational view: auto-refresh KPI + flags + queue on an interval so new
+// flags surface without a manual reload. The queue rebuild is SKIPPED while a
+// reviewer has a row expanded, so auto-refresh never collapses their drill-in.
+let LAST_REFRESH=Date.now();
+async function refreshAll(){
+ try{ await loadKpi(); await loadFba(); if(!document.querySelector('#rollup tbody tr.detail')){ await loadRollup(); } LAST_REFRESH=Date.now(); }catch(e){}
+}
+function tickLive(){const el=document.getElementById('liveTxt');if(!el)return;const s=Math.round((Date.now()-LAST_REFRESH)/1000);el.textContent='updated '+(s<60?(s+'s'):(Math.round(s/60)+'m'))+' ago';}
+whoami();refreshAll();
+setInterval(refreshAll,45000);
+setInterval(tickLive,5000);
 </script>
 </body></html>"""
