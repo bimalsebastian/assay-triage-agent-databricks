@@ -4,6 +4,25 @@ Six stages, one per required component (Lakeflow, Unity Catalog,
 Lakebase, ML/GenAI, Genie, Databricks App), built as an integrated
 journey against your real Azure Databricks workspace.
 
+## For evaluators — where to look (all text, no screenshots needed)
+
+- **`evidence/`** — committed proof each stage actually ran: real query output,
+  run logs, and records (240 ingested rows, 14 flagged, live queue, logged
+  reviewer resolutions). Read these, not descriptions of them.
+- **`docs/BUILD_PROCESS.md`** — how it was built with Claude Code: the prompt
+  sequence, the persistent `CLAUDE.md` contract, and the evidence-gated
+  discipline. (Build conversation ID available on request via the submission form.)
+- **`docs/DESIGN_DECISIONS.md`** — what was chosen, what was excluded and why, and
+  how the solution evolved (incl. the responsive-web-now / native-Android-deferred
+  UI surface strategy).
+- **`docs/UI_WALKTHROUGH.md`** — a text description of everything the UI renders
+  and how each element drives the reviewer's triage decision (since the UI can't
+  be seen).
+- **`DEPLOY.md`** — operator runbook to reproduce the whole journey in a fresh
+  workspace, with a full resource inventory.
+- **`connectors/README.md`** — the custom Lakeflow connectors as a reusable
+  reference pattern.
+
 ## One-time setup
 
 1. Install the Databricks CLI if you haven't already.
