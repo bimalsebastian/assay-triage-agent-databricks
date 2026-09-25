@@ -6,15 +6,20 @@ journey against your real Azure Databricks workspace.
 
 ## For evaluators — where to look (all text, no screenshots needed)
 
-- **[`EVIDENCE.md`](EVIDENCE.md)** — **start here for proof it ran.** Real runtime
-  output inlined as readable markdown: the ingestion pipeline (240 rows), the
-  flagging run (240 → 14 flagged, with reasons + boundary unit tests), the live
-  Lakebase review queue + sync + audit round-trip, a **real Genie answer with the
-  SQL Genie generated**, a live governance refusal, and the clinical blended-risk
-  sort. Confirm the build's behaviour here without opening the app.
-- **`evidence/`** — the 20 raw per-stage captures (`stageNN-*.txt`) behind
-  `EVIDENCE.md`: real query output, run logs, and records. Read these, not
-  descriptions of them.
+- **[`notebooks/execution_evidence.ipynb`](notebooks/execution_evidence.ipynb)** —
+  **START HERE. An executed Jupyter notebook, committed WITH its cell outputs visible.**
+  It was run with `jupyter nbconvert --execute` against the live workspace
+  `adb-7405610110498224` (running as `bimal.sebastian@databricks.com`); every output
+  cell is the real result returned at execution time: the ingestion row counts
+  (240 rows), the deterministic flagging run (240 → 14 flagged, with each flag's
+  reasoning), the clinical convergence counts, the **real `ai_query()` Gen AI model
+  output**, and a **live Genie response with the SQL Genie generated**. A plain-text
+  rendering of the same run is at
+  [`notebooks/execution_evidence.md`](notebooks/execution_evidence.md).
+- **[`EVIDENCE.md`](EVIDENCE.md)** — the same proof inlined as readable markdown, plus
+  the Lakebase review queue + sync + audit round-trip and a live governance refusal.
+- **`evidence/`** — the 21 raw per-stage captures (`stageNN-*.txt`): real query output,
+  run logs, and records. Read these, not descriptions of them.
 - **`docs/BUILD_PROCESS.md`** — how it was built with Claude Code: the prompt
   sequence, the persistent `CLAUDE.md` contract, and the evidence-gated
   discipline. (Build conversation ID available on request via the submission form.)

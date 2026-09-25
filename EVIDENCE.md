@@ -1,5 +1,10 @@
 # Execution evidence — proof each stage ran against a live workspace
 
+> **See also [`notebooks/execution_evidence.ipynb`](notebooks/execution_evidence.ipynb)** — an
+> executed Jupyter notebook committed *with its cell outputs visible* (run via
+> `nbconvert --execute` against the live workspace), and its plain-text rendering
+> [`notebooks/execution_evidence.md`](notebooks/execution_evidence.md).
+
 > **This is readable execution output, not a description of it.** Every block below
 > is real output captured from the live Azure Databricks workspace
 > `adb-7405610110498224.4.azuredatabricks.net` during the build, with the source
