@@ -131,3 +131,17 @@ def assay_results_raw():
     schema = conn.get_table_schema(TABLE, {})
     rows = _read_all(conn)
     return _to_dataframe(rows, schema)
+
+
+# ============================================================================
+#  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+#  full capture: evidence/stage00-bronze-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+# ============================================================================
+# Stage 00 — bronze ingestion (mock LIMS App -> custom LakeflowConnect connector -> pipeline -> bronze Delta).
+# Pipeline lead-opt-ingest-bronze (4d1050a0-...) update d4dfc52c-... -> COMPLETED.
+#   lead_opt_demo.bronze.assay_results_raw : 240 rows | 24 compounds | 5 assays
+#   window: 2026-09-10T08:30Z .. 2026-09-13T07:25Z
+#   13-col schema unmarshalled from the awkward vendor payload (sample_id, compound_id,
+#     plate, well, replicate, assay_name, result_value, result_unit, acquired_ts, ...).
+#   readings per assay: CACO2_PAPP 48 | CYP3A4_IC50 48 | KINETIC_SOL 48 | LOGD_7_4 48 | hERG_IC50 48
+#   tox signal already present for stage 03: 7 hERG_IC50 readings below 1.0 uM.

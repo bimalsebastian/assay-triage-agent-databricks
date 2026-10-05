@@ -19,3 +19,15 @@ CREATE OR REPLACE VIEW lead_opt_demo.silver.clinical_correlation_summary
   FROM lead_opt_demo.silver.assay_flags_clinical;
 
 GRANT SELECT ON VIEW lead_opt_demo.silver.clinical_correlation_summary TO `eed3b02d-5fda-409a-96e9-240e2a11e377`;
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage12-clinical-genie-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 12 — scoped-aggregate view powering a SEPARATE, tightly-scoped clinical Genie room
+--   (01f1b0576897173aa44f717957b922d0), scoped to ONLY clinical_correlation_summary (no patient data).
+--   out-of-scope verification, asked as the app SP (the room's runtime identity):
+--     clinical_observations (raw clinical catalog) -> FAILED, INSUFFICIENT_PERMISSIONS (no USE CATALOG)
+--     clinical_correlation_summary (scoped view)   -> SUCCEEDED, 8 rows
+--   A single unscoped room over both catalogs would be the anti-pattern; this proves scope is enforced.

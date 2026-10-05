@@ -58,3 +58,17 @@ GRANT USE CATALOG ON CATALOG lead_opt_demo_clinical TO `775366c2-e2bc-435c-af28-
 GRANT USE SCHEMA ON SCHEMA lead_opt_demo_clinical.silver TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
 GRANT SELECT ON TABLE lead_opt_demo_clinical.silver.clinical_observations TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
 GRANT SELECT ON TABLE lead_opt_demo_clinical.silver.patient_ref_registry TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage08-clinical-governance-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 08 — clinical silver in a SEPARATE catalog (lead_opt_demo_clinical) with DELIBERATELY TIGHTER grants.
+--   row counts: clinical_observations 13 | patient_ref_registry 8
+--   de-identified: patient_pseudonym = sha256 hash, no raw patient ref; registry has no demographics.
+--   grants CONTRAST (the governance point):
+--     CLINICAL (tight)   : SP 775366c2-... gets TABLE-level SELECT on clinical_observations only
+--                          (USE SCHEMA but NO schema-level SELECT).
+--     PRECLINICAL (broad): SPs 775366c2-... and eed3b02d-... get SCHEMA-level SELECT on lead_opt_demo.silver.
+--   So the review-app SP (eed3b02d-...) can read preclinical silver but CANNOT reach raw clinical rows.

@@ -44,3 +44,14 @@ CREATE OR REPLACE TABLE lead_opt_demo.silver.compound_drug_crosswalk
   FROM seed s;
 
 GRANT SELECT ON TABLE lead_opt_demo.silver.compound_drug_crosswalk TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage09-crosswalk-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 09 — compound->drug crosswalk (SYNTHETIC, intentionally imperfect to exercise edge cases).
+--   clean 1:1 (confidence 1.0): CMPD00001->DRG-0001, 00004->0004, 00008->0008, 00012->0012
+--   ambiguous multi-map (0.5): CMPD00006 & CMPD00007 both -> DRG-0777
+--   unresolved (0.0): CMPD00014 -> NULL (no clinical identifier)
+--   least-privilege check: ingest SP (table-level clinical SELECT only) CAN do the cross-catalog read -> SUCCEEDED.

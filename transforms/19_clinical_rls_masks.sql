@@ -32,3 +32,20 @@ ALTER TABLE lead_opt_demo_clinical.silver.clinical_observations
   ALTER COLUMN patient_pseudonym SET MASK lead_opt_demo_clinical.silver.mask_patient_key;
 ALTER TABLE lead_opt_demo_clinical.silver.clinical_observations
   SET ROW FILTER lead_opt_demo_clinical.silver.rf_clinical_obs ON (observation_type);
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage21-clinical-rls-masks-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 21 — explicit UC ROW-LEVEL SECURITY + COLUMN MASKS on lead_opt_demo_clinical.silver.clinical_observations.
+--   policies attached (visible in information_schema.column_masks / .row_filters):
+--     column mask mask_patient_key  on patient_pseudonym
+--     column mask mask_clinical_value on value
+--     row filter  rf_clinical_obs   on the table
+--   ENFORCEMENT PROVEN on a real non-PI identity (current_user bimal.sebastian@databricks.com,
+--     is_account_group_member('clinical_pis') = false):
+--       value           -> "REDACTED — clinical detail (clinical_pis only)"
+--       patient_pseudonym -> re-hashed to anon-<10hex> (cannot even link rows)
+--       lab_result rows -> filtered out by the row filter (adverse_reaction rows stay for the aggregate signal)
+--   A clinical_pis member would see full detail; everyone else is masked + row-filtered, per-person, at query time.

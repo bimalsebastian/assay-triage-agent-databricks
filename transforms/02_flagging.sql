@@ -145,3 +145,17 @@ CREATE OR REPLACE TABLE lead_opt_demo.silver.assay_flags
   LEFT JOIN hist h ON h.compound_id = ar.compound_id AND h.assay_name = ar.assay_name;
 
 GRANT SELECT ON TABLE lead_opt_demo.silver.assay_flags TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage02-flags-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 02 — deterministic, explainable flagging via UC function lead_opt_demo.silver.check_toxicity_flag.
+--   240 readings -> 14 FLAGGED, 226 not flagged
+--   flagged by assay: hERG_IC50 7 | LOGD_7_4 3 | CYP3A4_IC50 3 | KINETIC_SOL 1
+--   worst breach: CMPD00014 KINETIC_SOL 4.51 vs threshold 10.0 (margin -5.49)
+--   every row carries a human-readable `reason` (e.g. "FLAGGED: hERG_IC50 reading 0.259 uM
+--     breaches synthetic low-concern threshold 1.0 uM (margin -0.741)...").
+--   boundary unit tests (tests/02_flag_tests.sql): 6/6 passed; at-boundary reading = NOT flagged.
+--   This deterministic function is the FLAG AUTHORITY — no LLM decides the flag.

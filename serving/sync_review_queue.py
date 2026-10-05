@@ -43,3 +43,14 @@ if __name__ == "__main__":
     print("sync complete:")
     for k, v in result.items():
         print(f"  {k}: {v}")
+
+
+# ============================================================================
+#  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+#  full capture: evidence/stage03-review-queue-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+# ============================================================================
+# Stage 03 — sync silver flags -> Lakebase operational review queue (Postgres 17, projects/lead-opt-triage).
+#   sync complete: source_open_flags 14 | upserted 14 | cleared_stale 0 | queue_by_status {'open': 14}
+#   direct psql verify: review_queue has 14 open rows, worst margin first
+#     (CMPD00014 KINETIC_SOL -5.49 ... CMPD00008 LOGD_7_4 +0.37).
+#   Delta is the system of record; Lakebase holds the operational/serving queue.

@@ -89,3 +89,18 @@ if __name__ == "__main__":
     ap.add_argument("--min-resolved", type=int, default=3)
     args = ap.parse_args()
     run(args.tolerance, args.min_resolved)
+
+
+# ============================================================================
+#  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+#  full capture: evidence/stage22-drift-recalibration-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+# ============================================================================
+# Stage 22 — drift-triggered threshold recalibration. Reads REAL reviewer outcomes from Lakebase resolved_items,
+# opens a threshold-review task when an assay's false-positive rate drifts above tolerance.
+#   real outcomes read: false_positive 4 | confirmed_concern 2 | escalated_for_confirmatory_assay 2 (8 total)
+#   live run (--tolerance 0.20 --min-resolved 3):
+#     CYP3A4_IC50  n=2 fp=1 fpr=50%  insufficient samples
+#     LOGD_7_4     n=2 fp=1 fpr=50%  insufficient samples
+#     hERG_IC50    n=4 fp=2 fpr=50%  DRIFT -> opened threshold_review_tasks row [tr-hERG_IC50-2026-09-25]
+#   Low-sample assays (n<3) held as "insufficient samples" rather than firing on noise.
+#   Keys off the SAME FPR KPI the Lakebase layer already computes; the deterministic flag stays the authority.

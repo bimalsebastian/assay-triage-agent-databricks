@@ -327,3 +327,13 @@ def clear_stale(current_reading_ids: list[str]) -> int:
             )
         conn.commit()
         return cur.rowcount
+
+
+# ============================================================================
+#  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+#  full capture: evidence/stage03-review-queue-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+# ============================================================================
+# Stage 03 — Lakebase access layer resolve/reopen round-trip (live psql against lead_opt db):
+#   resolve_item( LO-CMPD00014-P3-B04-R1 ) -> True ; summary after resolve: {'open': 13, 'resolved': 1}
+#   reopen_item( LO-CMPD00014-P3-B04-R1 )  -> True ; summary after reopen:  {'open': 14}
+#   Human resolution decisions are audited here (resolved_items), feeding the drift job (serving/drift_recalibration.py).

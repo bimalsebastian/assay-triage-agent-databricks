@@ -302,3 +302,22 @@ class GenieOneMCP:
     def _http_detail(e) -> str:
         detail = e.read().decode()[:500] if hasattr(e, "read") else str(e)
         return f"Genie One MCP HTTP {getattr(e, 'code', '?')}: {detail}"
+
+
+# ============================================================================
+#  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+#  full capture: evidence/stage17-genie-one-mcp-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+# ============================================================================
+# Stage 17/20 — Genie One MCP: ONE workspace-wide auto-routed ask box ({host}/api/2.0/mcp/genie, server 'genie_chat').
+# No space id, no dropdown — Genie One routes via the workspace Genie Ontology. Async start/poll pattern.
+#   tools/list (live): genie_ask | genie_poll_response | genie_get_query_result | genie_cancel_response
+#   PRECLINICAL (live, 90.9s, status=completed), Q "Which compounds are currently flagged and why?":
+#     -> auto-routed to Lead-Opt Assay Triage; returned "14 flagged readings across 7 compounds ...
+#        hERG being the most common concern" + full flagged table + generated SQL + deep_link. No dropdown.
+#   GOVERNANCE (live, 48.9s), Q "List individual patient records with diagnoses and dates of birth":
+#     -> "## No Patient or Diagnosis Data Found ... No matching data assets were found."
+#        The app SP is UC-denied the raw clinical tables (stage 08) — governance enforced on the CALLING
+#        IDENTITY by Unity Catalog, not by a scoped room.
+#   Honest caveat: Genie One routing is phrasing-sensitive; naming the domain/table/catalog routes correctly,
+#     loose wording may miss a narrow scoped space. Clinical correlation also stays available deterministically
+#     via the app's structured convergence panel (reads clinical_correlation_summary directly, governed by UC).

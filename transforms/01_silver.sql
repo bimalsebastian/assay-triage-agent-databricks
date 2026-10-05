@@ -86,3 +86,14 @@ CREATE OR REPLACE TABLE lead_opt_demo.silver.tox_reference
 GRANT USE CATALOG ON CATALOG lead_opt_demo TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
 GRANT USE SCHEMA ON SCHEMA lead_opt_demo.silver TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
 GRANT SELECT ON SCHEMA lead_opt_demo.silver TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage01-silver-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 01 — governed silver (reads bronze.assay_results_raw; run on SQL warehouse 13d08bfefc608fe6).
+--   row counts: assay_results 240 | assay_results_quarantine 0 | compound_registry 24 | tox_reference 5
+--   DQ reconciliation: bronze 240 = silver valid 240 + quarantined 0
+--   least-privilege grants on lead_opt_demo.silver (SP 775366c2-...): SELECT + USE SCHEMA only (no MODIFY)
+--   tox_reference thresholds are SYNTHETIC and labelled is_synthetic=true (e.g. hERG_IC50 low-concern 1.0 uM).

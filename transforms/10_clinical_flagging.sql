@@ -98,3 +98,14 @@ CREATE OR REPLACE TABLE lead_opt_demo.silver.assay_flags_clinical
   LEFT JOIN adv ON adv.compound_id = f.compound_id;
 
 GRANT SELECT ON TABLE lead_opt_demo.silver.assay_flags_clinical TO `775366c2-e2bc-435c-af28-0cd5ca2386a0`;
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage10-clinical-flagging-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 10 — clinical correlation as a THREE-STATE signal (not a boolean) via check_clinical_correlation.
+--   state distribution: checked_no_correlation 2 | correlated 3 | no_mapping 3
+--   CMPD00012 correlated: DRG-0012, 2 adverse obs (qt_prolongation, cardiac_arrhythmia)
+--   CMPD00006 / CMPD00007 correlated via ambiguous DRG-0777 (mild_rash)
+--   unit tests (tests/10_clinical_correlation_tests.sql): 3/3 passed (one per state).

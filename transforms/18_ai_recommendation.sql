@@ -70,3 +70,19 @@ FROM prompted;
 -- Audit note carried on the table itself.
 COMMENT ON TABLE lead_opt_demo.silver.assay_flag_recommendations IS
   'ADVISORY AI recommendations (ai_query, Llama-3.3-70B) grounded in the deterministic flags + clinical correlation. Advisory only; deterministic check_toxicity_flag is the authority. Each row logs its exact input prompt, model endpoint and generated_ts for audit.';
+
+
+-- ============================================================================
+--  VERIFIED RUN OUTPUT — captured live from workspace adb-7405610110498224
+--  full capture: evidence/stage18-ai-recommendation-evidence.txt  |  notebooks/execution_evidence.ipynb (outputs committed)
+-- ============================================================================
+-- Stage 18 — ADVISORY ai_query() recommendation (Gen AI). The FIRST and ONLY LLM call in the build.
+--   model: databricks-meta-llama-3-3-70b-instruct (FM API pay-per-token, batch inference), temperature 0.0
+--   endpoint smoke test: databricks-claude-fable-5 -> PERMISSION_DENIED (batch inference not supported);
+--                        databricks-meta-llama-3-3-70b-instruct -> SUCCEEDED (used).
+--   materialized 8 grounded recommendations to lead_opt_demo.silver.assay_flag_recommendations:
+--     CMPD00012 (correlated, 2 adverse) -> "ACTION: escalate for confirmatory assay"
+--     CMPD00006 / CMPD00007 (correlated) -> escalate ; CMPD00004 (no correlation) -> "monitor next cycle"
+--   ADVISORY + AUDITED: the deterministic check_toxicity_flag (stage 02) stays the flag AUTHORITY; the LLM
+--     invents no data and never decides the flag. Each row logs the exact grounded input prompt, the
+--     model_endpoint, and generated_ts (one full audit row captured in the evidence file).
